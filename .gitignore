@@ -1,0 +1,17 @@
+/*
+!/.gitignore
+!/README.md
+!/.ddev/
+/.ddev/*
+!/.ddev/config.yaml
+!/tools/
+!/tools/**
+!/wordpress/
+/wordpress/*
+!/wordpress/wp-content/
+/wordpress/wp-content/*
+!/wordpress/wp-content/mu-plugins/
+/wordpress/wp-content/mu-plugins/*
+!/wordpress/wp-content/mu-plugins/portfolio-projects.php
+!/wordpress/wp-content/mu-plugins/portfolio-projects/
+!/wordpress/wp-content/mu-plugins/portfolio-projects/**

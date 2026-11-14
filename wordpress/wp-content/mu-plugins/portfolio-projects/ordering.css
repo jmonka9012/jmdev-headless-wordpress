@@ -1,0 +1,20 @@
+.portfolio-order { max-width: 1000px; }
+.portfolio-order-filter { margin: 20px 0; display: flex; gap: 10px; align-items: center; }
+.portfolio-order-actions { position: sticky; top: 32px; z-index: 5; padding: 15px 0; background: #f0f0f1; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.portfolio-order-list { margin: 0; list-style: none; }
+.portfolio-order-list > li { display: flex; align-items: center; gap: 15px; min-height: 64px; padding: 12px 16px; margin: 0 0 8px; border: 1px solid #c3c4c7; background: #fff; box-sizing: border-box; }
+.portfolio-order-number { min-width: 24px; text-align: center; color: #646970; }
+.portfolio-order-grip { cursor: grab; flex: 0 0 20px; padding: 12px 4px; touch-action: none; }
+.portfolio-order-thumbnail { width: 56px; height: 44px; object-fit: contain; flex: 0 0 56px; }
+.portfolio-order-title { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.portfolio-order-title a { font-size: 15px; font-weight: 600; }
+.portfolio-order-title small { display: block; margin-top: 4px; color: #646970; }
+.portfolio-order-controls { display: flex; gap: 8px; }
+.portfolio-order-controls .button { min-width: 36px; min-height: 36px; display: inline-flex; align-items: center; justify-content: center; }
+.portfolio-order-placeholder { border: 2px dashed #2271b1 !important; background: #f0f6fc !important; }
+@media (max-width: 782px) {
+  .portfolio-order-actions { top: 46px; }
+  .portfolio-order-list > li { gap: 8px; padding: 10px; }
+  .portfolio-order-thumbnail { width: 40px; flex-basis: 40px; }
+  .portfolio-order-controls { flex-direction: column; gap: 4px; }
+}

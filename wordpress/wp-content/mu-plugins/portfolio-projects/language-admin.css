@@ -1,0 +1,6 @@
+.portfolio-editor { max-width: 1250px; }
+.portfolio-language-tabs { position: sticky; top: 32px; z-index: 20; padding: 14px; background: #fff; border-bottom: 1px solid #ccc; }
+.portfolio-language-tabs [aria-pressed="true"] { background: #2271b1; color: #fff; }
+.portfolio-editor [hidden] { display: none !important; }
+.portfolio-editor section { padding: 20px; background: #fff; margin: 20px 0; }
+.portfolio-technology-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 25px; }
