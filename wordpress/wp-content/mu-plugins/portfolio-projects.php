@@ -5,6 +5,7 @@
  */
 if (!defined('ABSPATH')) { exit; }
 require_once __DIR__ . '/portfolio-projects/acf-fields.php';
+require_once __DIR__ . '/portfolio-projects/post-types.php';
 require_once __DIR__ . '/portfolio-projects/schema.php';
 require_once __DIR__ . '/portfolio-projects/legacy-media.php';
 require_once __DIR__ . '/portfolio-projects/multilingual.php';

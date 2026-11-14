@@ -11,8 +11,7 @@ exports, credentials and private migration reports are excluded.
 
 - WordPress and Advanced Custom Fields are required.
 - `.ddev/config.yaml` describes the existing local development environment.
-- Field definitions are registered in PHP; the Technology post-type definition
-  is the remaining database-managed configuration at this checkpoint.
+- ACF field definitions and the Technology post type are registered in PHP.
 - This repository does not include the private content database. A clean-install
   bootstrap and fictional demo content are separate preparation tasks.
 

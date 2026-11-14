@@ -21,9 +21,20 @@ the groups managed in code.
 
 The structured project fields in `schema.php` and the category field in
 `technology-categories.php` were already registered in PHP. All six active field
-groups now come from code. The `technology` post-type registration is separate
-and still uses ACF's database configuration; this change does not yet make the
-entire backend installable from an empty database.
+groups now come from code.
+
+## Technology post type
+
+`post-types.php` registers `technology` on `init` at priority 0, before ACF
+processes its retained database record. The arguments in
+`post-types/technology.php` preserve the exported ACF configuration, including
+labels, capabilities, supports, rewrite settings and REST exposure. Existing
+technology IDs, slugs, images, categories and values remain unchanged. An empty
+database no longer needs an ACF post-type definition for Technology to exist.
+
+The old ACF record is kept as a fallback, with a notice identifying the PHP
+source. WordPress core, ACF installation, site setup and sample content are
+separate requirements; code registration alone does not install the whole site.
 
 Registration and legacy field-key contracts can be checked without WordPress:
 
