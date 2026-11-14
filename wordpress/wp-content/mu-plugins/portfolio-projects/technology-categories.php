@@ -20,11 +20,11 @@ function portfolio_technology_category($id) {
 
 add_action('acf/init', function () {
     acf_add_local_field_group([
-        'key' => 'group_portfolio_technology_category', 'title' => 'Portfolio — kategoria technologii',
+        'key' => 'group_portfolio_technology_category', 'title' => 'Portfolio — technology category',
         'fields' => [[
             'key' => 'field_portfolio_technology_category', 'name' => 'technology_category',
-            'label' => 'Kategoria', 'type' => 'select', 'required' => 1, 'allow_null' => 1,
-            'choices' => array_map(static fn($labels) => $labels['pl'], portfolio_technology_categories()),
+            'label' => 'Category', 'type' => 'select', 'required' => 1, 'allow_null' => 1,
+            'choices' => array_map(static fn($labels) => $labels['en'], portfolio_technology_categories()),
             'return_format' => 'value',
         ]],
         'location' => [[['param' => 'post_type', 'operator' => '==', 'value' => 'technology']]],

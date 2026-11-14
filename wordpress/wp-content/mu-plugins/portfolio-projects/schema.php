@@ -8,8 +8,8 @@ function portfolio_project_type($value) {
 /** Stable row names also define the future structured-data contract. */
 function portfolio_project_row_fields($name) {
     $definitions = in_array($name, ['project_gallery', 'project_screenshots'], true)
-        ? [['image', 'Obraz', 'image'], ['caption', 'Podpis zdjęcia (opcjonalnie)', 'text']]
-        : [['title', 'Tytuł zagadnienia', 'text'], ['challenge', 'Wyzwanie', 'textarea'], ['solution', 'Rozwiązanie', 'wysiwyg'], ['effect', 'Efekt', 'textarea'], ['screenshots', 'Zrzuty ekranu (opcjonalnie)', 'portfolio_rows'], ['link_url', 'Link do materiału (opcjonalnie)', 'url'], ['link_label', 'Tekst przycisku (opcjonalnie)', 'text']];
+        ? [['image', 'Image', 'image'], ['caption', 'Image caption (optional)', 'text']]
+        : [['title', 'Challenge title', 'text'], ['challenge', 'Challenge', 'textarea'], ['solution', 'Solution', 'wysiwyg'], ['effect', 'Result', 'textarea'], ['screenshots', 'Screenshots (optional)', 'portfolio_rows'], ['link_url', 'Resource link (optional)', 'url'], ['link_label', 'Button text (optional)', 'text']];
     return array_map(function ($item) use ($name) {
         [$key, $label, $type] = $item;
         if ($key === 'screenshots') {
@@ -17,15 +17,15 @@ function portfolio_project_row_fields($name) {
                 'key' => 'field_portfolio_' . $name . '_screenshots', 'name' => 'screenshots',
                 'label' => $label, 'type' => 'portfolio_rows',
                 'sub_fields' => portfolio_project_row_fields('project_screenshots'),
-                'instructions' => 'Dodaj jeden lub więcej zrzutów. Kolejność zmienisz przyciskami w nagłówku.',
+                'instructions' => 'Add one or more screenshots. Use the header buttons to reorder them.',
             ];
         }
         return [
             'key' => 'field_portfolio_' . $name . '_' . $key, 'name' => $key,
             'label' => $label, 'type' => $type, 'required' => in_array($name, ['project_gallery', 'project_screenshots'], true) && $key === 'image',
             'return_format' => 'array', 'preview_size' => 'medium', 'library' => 'all',
-            'instructions' => ['title' => 'Krótki nagłówek, np. „Wydajność strony”.', 'challenge' => 'Jaki problem należało rozwiązać?', 'solution' => 'Co zrobiłeś i dlaczego wybrałeś to rozwiązanie?', 'effect' => 'Co udało się uzyskać? Podaj konkretne wyniki, jeśli je masz.'][$key] ?? '',
-            'placeholder' => $key === 'link_url' ? 'https://' : ($key === 'link_label' ? 'Zobacz materiał' : ''),
+            'instructions' => ['title' => 'A short heading, e.g. Page performance.', 'challenge' => 'What problem needed to be solved?', 'solution' => 'What was done, and why was this approach chosen?', 'effect' => 'What was achieved? Include specific results when available.'][$key] ?? '',
+            'placeholder' => $key === 'link_url' ? 'https://' : ($key === 'link_label' ? 'View resource' : ''),
             'rows' => 4, 'tabs' => 'all', 'toolbar' => 'basic', 'media_upload' => 0,
         ];
     }, $definitions);
@@ -68,47 +68,47 @@ function portfolio_register_project_fields() {
     // Layout-only tabs/messages do not introduce additional stored values.
     $fields = [
         $tab('hero', '1. Hero'),
-        $note('hero', 'Tytuł i podtytuł uzupełnij w polach „Tytuł” i „Zajawka” WordPressa. Obrazek wyróżniający to miniatura na liście projektów. Poniższa galeria pojawi się w nagłówku detalu.'),
+        $note('hero', 'Enter the title and subtitle in the WordPress Title and Excerpt fields. The featured image is the project-list thumbnail. The gallery below appears in the project header.'),
         [
             'key' => 'field_portfolio_project_type', 'name' => 'project_type',
-            'label' => 'Typ projektu', 'type' => 'select', 'required' => 1,
-            'choices' => ['commercial' => 'Komercyjny', 'personal' => 'Osobisty'],
+            'label' => 'Project type', 'type' => 'select', 'required' => 1,
+            'choices' => ['commercial' => 'Commercial', 'personal' => 'Personal'],
             'allow_null' => 1, 'return_format' => 'value',
         ],
         [
             'key' => 'field_portfolio_project_gallery', 'name' => 'project_gallery',
-            'label' => 'Zdjęcia w galerii', 'type' => 'portfolio_rows',
+            'label' => 'Gallery images', 'type' => 'portfolio_rows',
             'sub_fields' => portfolio_project_row_fields('project_gallery'),
-            'instructions' => 'Kolejność zdjęć zmienisz przyciskami w nagłówku. Podpisy są opcjonalne.',
+            'instructions' => 'Use the header buttons to reorder images. Captions are optional.',
         ],
-        $tab('overview', '2. Opis i technologie'),
-        $note('overview', 'Opis projektu uzupełnij w głównym edytorze treści WordPressa. Technologie przypisuj w polu relacji — korzystamy z istniejących wpisów technologii.'),
+        $tab('overview', '2. Overview and technologies'),
+        $note('overview', 'Enter the project overview in the main WordPress content editor. Assign technologies through the relationship field using existing technology entries.'),
     ];
     if (!portfolio_technology_field()) {
         $fields[] = [
             'key' => 'field_portfolio_project_technologies', 'name' => 'project_technologies',
-            'label' => 'Technologie wykorzystane w projekcie', 'type' => 'relationship', 'post_type' => ['technology'],
-            'instructions' => 'Wyszukaj technologię i kliknij, aby przypisać ją do tego projektu.',
+            'label' => 'Project technologies', 'type' => 'relationship', 'post_type' => ['technology'],
+            'instructions' => 'Search for a technology and click to assign it to this project.',
             'filters' => ['search'], 'return_format' => 'id',
         ];
     }
     $fields = array_merge($fields, [
-        $tab('challenges', '3. Wyzwania i rozwiązania'),
+        $tab('challenges', '3. Challenges and solutions'),
         [
             'key' => 'field_portfolio_project_challenges', 'name' => 'project_challenges',
-            'label' => 'Zagadnienia projektu', 'type' => 'portfolio_rows',
+            'label' => 'Project challenges', 'type' => 'portfolio_rows',
             'sub_fields' => portfolio_project_row_fields('project_challenges'),
-            'instructions' => 'Jeden wiersz = jedno zagadnienie: wyzwanie, rozwiązanie i efekt. Puste zagadnienia nie pojawią się na stronie.',
+            'instructions' => 'Each row describes one challenge, solution and result. Empty challenges are hidden on the site.',
         ],
-        $tab('outcome', '4. Podsumowanie'),
+        $tab('outcome', '4. Outcome'),
         [
             'key' => 'field_portfolio_project_outcome', 'name' => 'project_outcome',
-            'label' => 'Końcowy rezultat', 'type' => 'textarea', 'rows' => 4,
-            'instructions' => 'Opcjonalne. Krótko podsumuj rezultat projektu. Pozostaw puste, aby ukryć całą sekcję.',
+            'label' => 'Final outcome', 'type' => 'textarea', 'rows' => 4,
+            'instructions' => 'Optional. Summarize the project outcome briefly. Leave empty to hide the section.',
         ],
     ]);
     acf_add_local_field_group([
-        'key' => 'group_portfolio_project', 'title' => 'Portfolio — treść podstrony projektu',
+        'key' => 'group_portfolio_project', 'title' => 'Portfolio — project details',
         'fields' => $fields, 'location' => [[['param' => 'post_type', 'operator' => '==', 'value' => 'post']]],
         'instruction_placement' => 'label', 'label_placement' => 'top',
         'show_in_rest' => 1, 'active' => true,

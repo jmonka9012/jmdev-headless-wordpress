@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) { exit; }
 class Portfolio_Project_Rows extends acf_field {
     public function initialize() {
         $this->name = 'portfolio_rows';
-        $this->label = 'Portfolio — powtarzalne sekcje';
+        $this->label = 'Portfolio — repeatable sections';
         $this->category = 'layout';
         $this->defaults = ['sub_fields' => []];
         $this->supports = ['escaping_html' => true];
@@ -13,7 +13,7 @@ class Portfolio_Project_Rows extends acf_field {
 
     public function input_admin_enqueue_scripts() {
         wp_enqueue_media();
-        wp_enqueue_script('portfolio-project-rows', plugins_url('rows.js', __FILE__), ['acf-input'], '1.2.0', true);
+        wp_enqueue_script('portfolio-project-rows', plugins_url('rows.js', __FILE__), ['acf-input'], '1.2.1', true);
         wp_enqueue_style('portfolio-project-rows', plugins_url('rows.css', __FILE__), [], '1.2.0');
     }
 
@@ -21,16 +21,16 @@ class Portfolio_Project_Rows extends acf_field {
         $rows = is_array($field['value']) ? $field['value'] : [];
         $gallery = in_array($field['_name'] ?? '', ['project_gallery', 'screenshots'], true);
         $token = '__PORTFOLIO_ROW_' . ($field['_portfolio_depth'] ?? 0) . '__';
-        printf('<div class="portfolio-rows" data-row-token="%s" data-row-label="%s">', esc_attr($token), esc_attr($gallery ? 'Zdjęcie' : 'Zagadnienie'));
+        printf('<div class="portfolio-rows" data-row-token="%s" data-row-label="%s">', esc_attr($token), esc_attr($gallery ? 'Image' : 'Challenge'));
         echo '<div class="portfolio-rows__toolbar"><span class="portfolio-rows__count" aria-live="polite"></span><div>';
-        echo '<button type="button" class="button-link" data-portfolio-action="expand">Rozwiń wszystkie</button> · <button type="button" class="button-link" data-portfolio-action="collapse">Zwiń wszystkie</button></div></div>';
+        echo '<button type="button" class="button-link" data-portfolio-action="expand">Expand all</button> · <button type="button" class="button-link" data-portfolio-action="collapse">Collapse all</button></div></div>';
         // An explicit empty value lets removing the last row clear the collection.
         printf('<input type="hidden" name="%s" value="">', esc_attr($field['name']));
         echo '<div class="portfolio-rows__list">';
         foreach (array_values($rows) as $index => $row) { $this->render_row($field, $row, 'row_' . $index); }
         echo '</div><template class="portfolio-rows__template">';
         $this->render_row($field, [], $token);
-        printf('</template><p class="portfolio-rows__empty">%s</p><button type="button" class="button button-secondary" data-portfolio-action="add">%s</button></div>', esc_html($gallery ? 'Brak zdjęć w tej galerii. Dodaj zdjęcie, aby rozpocząć.' : 'Brak zagadnień. Dodaj pierwsze wyzwanie i opisz jego rozwiązanie.'), esc_html($gallery ? '+ Dodaj zdjęcie' : '+ Dodaj zagadnienie'));
+        printf('</template><p class="portfolio-rows__empty">%s</p><button type="button" class="button button-secondary" data-portfolio-action="add">%s</button></div>', esc_html($gallery ? 'This gallery has no images. Add an image to get started.' : 'No challenges yet. Add a challenge and describe its solution.'), esc_html($gallery ? '+ Add image' : '+ Add challenge'));
     }
 
     private function render_row($field, $row, $index) {
@@ -38,8 +38,8 @@ class Portfolio_Project_Rows extends acf_field {
         $body_id = acf_idify($field['name'] . '_' . $index . '_body');
         $title = $gallery ? ($row['caption'] ?? '') : ($row['title'] ?? '');
         $expanded = $index === 'row_0' || str_starts_with((string) $index, '__PORTFOLIO_ROW_');
-        printf('<div class="portfolio-rows__row%s"><div class="portfolio-rows__header"><button type="button" class="portfolio-rows__toggle" data-portfolio-action="toggle" aria-expanded="%s" aria-controls="%s"><span class="portfolio-rows__number"></span><span class="portfolio-rows__title">%s</span><span class="portfolio-rows__chevron" aria-hidden="true">⌄</span></button><div class="portfolio-rows__actions">', $gallery ? ' portfolio-rows__row--image' : '', $expanded ? 'true' : 'false', esc_attr($body_id), esc_html($title ?: ($gallery ? 'Zdjęcie bez podpisu' : 'Nowe zagadnienie')));
-        foreach (['up' => 'W górę', 'down' => 'W dół', 'remove' => 'Usuń wiersz'] as $action => $label) {
+        printf('<div class="portfolio-rows__row%s"><div class="portfolio-rows__header"><button type="button" class="portfolio-rows__toggle" data-portfolio-action="toggle" aria-expanded="%s" aria-controls="%s"><span class="portfolio-rows__number"></span><span class="portfolio-rows__title">%s</span><span class="portfolio-rows__chevron" aria-hidden="true">⌄</span></button><div class="portfolio-rows__actions">', $gallery ? ' portfolio-rows__row--image' : '', $expanded ? 'true' : 'false', esc_attr($body_id), esc_html($title ?: ($gallery ? 'Image without a caption' : 'New challenge')));
+        foreach (['up' => 'Move up', 'down' => 'Move down', 'remove' => 'Remove row'] as $action => $label) {
             printf('<button type="button" class="button" data-portfolio-action="%s">%s</button> ', esc_attr($action), esc_html($label));
         }
         printf('</div></div><div id="%s" class="acf-fields portfolio-rows__body"%s>', esc_attr($body_id), $expanded ? '' : ' hidden');
@@ -86,9 +86,9 @@ class Portfolio_Project_Rows extends acf_field {
 
     public function validate_value($valid, $value, $field, $input) {
         if ($valid !== true) { return $valid; }
-        if ($value !== '' && $value !== null && $value !== false && !is_array($value)) { return 'Oczekiwano listy wierszy.'; }
+        if ($value !== '' && $value !== null && $value !== false && !is_array($value)) { return 'Expected a list of rows.'; }
         foreach (is_array($value) ? $value : [] as $row) {
-            if (!is_array($row)) { return 'Nieprawidłowy wiersz.'; }
+            if (!is_array($row)) { return 'Invalid row.'; }
             foreach ($field['sub_fields'] as $sub) {
                 $item = $sub['name'] === 'screenshots' ? portfolio_project_screenshot_rows($row) : ($row[$sub['name']] ?? '');
                 if ($sub['type'] === 'portfolio_rows') {
@@ -96,9 +96,9 @@ class Portfolio_Project_Rows extends acf_field {
                     if ($nested !== true) { return $nested; }
                 } elseif ($sub['type'] === 'image') {
                     $id = is_array($item) ? ($item['ID'] ?? $item['id'] ?? 0) : $item;
-                    if (($id && (!is_numeric($id) || !wp_attachment_is_image(absint($id)))) || (!empty($sub['required']) && !$id)) { return 'Wybierz prawidłowy obraz z biblioteki mediów.'; }
-                } elseif (!is_scalar($item)) { return 'Nieprawidłowa wartość tekstowa.'; }
-                elseif ($sub['type'] === 'url' && trim((string) $item) !== '' && !portfolio_project_link($item)) { return 'Podaj pełny adres zaczynający się od https:// lub http://.'; }
+                    if (($id && (!is_numeric($id) || !wp_attachment_is_image(absint($id)))) || (!empty($sub['required']) && !$id)) { return 'Select a valid image from the media library.'; }
+                } elseif (!is_scalar($item)) { return 'Invalid text value.'; }
+                elseif ($sub['type'] === 'url' && trim((string) $item) !== '' && !portfolio_project_link($item)) { return 'Enter a complete URL starting with https:// or http://.'; }
             }
         }
         return true;

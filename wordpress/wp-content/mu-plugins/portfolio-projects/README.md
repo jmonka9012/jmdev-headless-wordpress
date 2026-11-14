@@ -45,6 +45,10 @@ php wordpress/wp-content/mu-plugins/portfolio-projects/tests/acf-fields.php
 
 ## Editing
 
+Custom admin labels, instructions and validation messages are in English.
+Project content remains localized; language names configured in WordPress are
+preserved. Native WordPress and external plugin controls follow their own locale.
+
 Projects remain standard WordPress `post` entries. Use the native title, manual excerpt (Hero subtitle), and content (Overview). The structured project field group contains:
 
 - `project_gallery`: ordered rows of attachment `image` and optional plain-text `caption`.
@@ -56,6 +60,12 @@ The editing group has four tabs matching the detail page: Hero, overview/technol
 Rows have numbered headers, live titles/captions, collapse/expand controls, an item count, and keyboard-accessible up/down buttons. The first row starts expanded; new rows open automatically, and validation errors reveal the affected collection. Gallery images and captions appear side by side on desktop. Solution uses the ACF WYSIWYG editor. Image fields use the WordPress media library.
 
 ACF Free does not contain the PRO Repeater. This plugin registers its own `portfolio_rows` field type using ACF's extension API. It uses ACF inputs, validation and persistence, but stores each collection as a single ordered array in post meta. It is **not storage-compatible with PRO Repeater**; installing PRO later does not change its type or rewrite data. Nested screenshot rows use the same custom field. The `have_rows()` API is outside its scope; read collections with `get_field()`.
+
+Use **Portfolio → Order** to reorder projects and technologies. Projects share
+one order across translations; technologies are ordered within their category.
+Drag rows or use the move buttons, then click **Save order**. **Discard unsaved
+changes** restores the order from page load. Category choices in the admin use
+English labels independently of the localized labels exposed to the frontend.
 
 ## Compatibility and technologies
 

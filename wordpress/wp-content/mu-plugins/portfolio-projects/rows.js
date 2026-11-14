@@ -6,14 +6,14 @@
   };
   const refresh = (container) => {
     const rows = container.children('.portfolio-rows__list').children('.portfolio-rows__row');
-    container.children('.portfolio-rows__toolbar').find('.portfolio-rows__count').text(`Liczba elementów: ${rows.length}`);
+    container.children('.portfolio-rows__toolbar').find('.portfolio-rows__count').text(`Items: ${rows.length}`);
     container.children('.portfolio-rows__empty').prop('hidden', rows.length > 0);
     rows.each(function (index) {
       const row = $(this);
       const header = row.children('.portfolio-rows__header');
       const value = row.children('.portfolio-rows__body').children('.acf-field').find('input[name$="[title]"], input[name$="[caption]"], input[name$="_title]"], input[name$="_caption]"]').filter(function () { return $(this).closest('.portfolio-rows')[0] === container[0]; }).first().val();
       header.find('.portfolio-rows__number').text(`${container.attr('data-row-label')} ${index + 1}`);
-      header.find('.portfolio-rows__title').text(value?.trim() || (row.hasClass('portfolio-rows__row--image') ? 'Zdjęcie bez podpisu' : 'Nowe zagadnienie'));
+      header.find('.portfolio-rows__title').text(value?.trim() || (row.hasClass('portfolio-rows__row--image') ? 'Image without a caption' : 'New challenge'));
       header.find('[data-portfolio-action="up"]').prop('disabled', index === 0);
       header.find('[data-portfolio-action="down"]').prop('disabled', index === rows.length - 1);
     });

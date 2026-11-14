@@ -2,7 +2,7 @@
 if (!defined('ABSPATH')) { exit; }
 
 function portfolio_languages() {
-    return get_option('portfolio_languages', ['pl' => 'Polski', 'en' => 'English']);
+    return get_option('portfolio_languages', ['pl' => 'Polish', 'en' => 'English']);
 }
 function portfolio_project_root($id) {
     $root = (int) get_post_meta($id, '_portfolio_root_id', true);

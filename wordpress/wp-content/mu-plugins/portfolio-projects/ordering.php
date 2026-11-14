@@ -29,16 +29,16 @@ function portfolio_order_token($items) {
 }
 
 function portfolio_order_validate($items, $ids, $token) {
-    if (!hash_equals(portfolio_order_token($items), $token)) { throw new RuntimeException('Lista zmieniła się od otwarcia. Odśwież stronę i ustaw kolejność ponownie.'); }
-    if (!is_array($ids)) { throw new RuntimeException('Nieprawidłowa lista.'); }
+    if (!hash_equals(portfolio_order_token($items), $token)) { throw new RuntimeException('The list has changed since it was opened. Refresh the page and reorder the items again.'); }
+    if (!is_array($ids)) { throw new RuntimeException('Invalid list.'); }
     $result = [];
     foreach ($ids as $id) {
-        if ((!is_int($id) && !is_string($id)) || !ctype_digit((string) $id) || (int) $id < 1) { throw new RuntimeException('Nieprawidłowy identyfikator.'); }
+        if ((!is_int($id) && !is_string($id)) || !ctype_digit((string) $id) || (int) $id < 1) { throw new RuntimeException('Invalid ID.'); }
         $result[] = (int) $id;
     }
     $expected = array_column($items, 'id'); $sorted = $result;
     sort($expected); sort($sorted);
-    if ($expected !== $sorted) { throw new RuntimeException('Lista musi zawierać wszystkie pozycje bez powtórzeń.'); }
+    if ($expected !== $sorted) { throw new RuntimeException('The list must contain every item exactly once.'); }
     return $result;
 }
 
@@ -50,7 +50,7 @@ function portfolio_technology_order_field() {
             if ($field['name'] === 'order') { return $key = $field['key']; }
         }
     }
-    throw new RuntimeException('Brak pola kolejności technologii.');
+    throw new RuntimeException('The technology order field is missing.');
 }
 
 function portfolio_order_next($kind) {
@@ -59,11 +59,11 @@ function portfolio_order_next($kind) {
 }
 
 function portfolio_order_permissions($kind, $items) {
-    if (!current_user_can('edit_others_posts')) { throw new RuntimeException('Brak uprawnień do ustawiania kolejności.'); }
+    if (!current_user_can('edit_others_posts')) { throw new RuntimeException('You do not have permission to reorder items.'); }
     foreach ($items as $item) {
         $ids = [$item['id']];
         if ($kind === 'projects') { $ids = array_merge($ids, wp_list_pluck(portfolio_project_translations($item['id']), 'ID')); }
-        foreach ($ids as $id) { if (!current_user_can('edit_post', $id)) { throw new RuntimeException('Brak uprawnień do pozycji: ' . $item['title']); } }
+        foreach ($ids as $id) { if (!current_user_can('edit_post', $id)) { throw new RuntimeException('You do not have permission to edit item: ' . $item['title']); } }
     }
 }
 
@@ -76,7 +76,7 @@ function portfolio_order_write($kind, $ids) {
             portfolio_store_meta($id, '_portfolio_shared', $shared);
         } else {
             update_field(portfolio_technology_order_field(), $rank, $id);
-            if ((string) get_post_meta($id, 'order', true) !== (string) $rank) { throw new RuntimeException('Nie udało się zapisać kolejności technologii.'); }
+            if ((string) get_post_meta($id, 'order', true) !== (string) $rank) { throw new RuntimeException('Could not save the technology order.'); }
         }
     }
 }
@@ -90,20 +90,20 @@ function portfolio_order_save($kind, $category, $ids, $token) {
     try {
         foreach ($lock_ids as $id) {
             $lock = ($kind === 'projects' ? 'portfolio-project-' : 'portfolio-technology-') . $id;
-            if ((int) $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 0)', $lock)) !== 1) { throw new RuntimeException('Trwa zapisywanie jednej z pozycji. Spróbuj ponownie.'); }
+            if ((int) $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 0)', $lock)) !== 1) { throw new RuntimeException('An item is being saved. Try again.'); }
             $locks[] = $lock;
         }
-        if ($wpdb->query('START TRANSACTION') === false) { throw new RuntimeException('Nie udało się rozpocząć zapisu.'); }
+        if ($wpdb->query('START TRANSACTION') === false) { throw new RuntimeException('Could not start saving.'); }
         if ($lock_ids) {
             $placeholders = implode(',', array_fill(0, count($lock_ids), '%d'));
             $wpdb->get_results($wpdb->prepare("SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id IN ($placeholders) AND meta_key IN ('_portfolio_shared', 'order', 'technology_category') FOR UPDATE", ...$lock_ids));
-            if ($wpdb->last_error) { throw new RuntimeException('Nie udało się zablokować zapisywanych danych.'); }
+            if ($wpdb->last_error) { throw new RuntimeException('Could not lock the data for saving.'); }
         }
         foreach ($lock_ids as $id) { clean_post_cache($id); }
         $current = portfolio_order_items($kind, $category);
         portfolio_order_validate($current, $ids, $token);
         portfolio_order_write($kind, $ordered_ids);
-        if ($wpdb->query('COMMIT') === false) { throw new RuntimeException('Nie udało się zatwierdzić kolejności.'); }
+        if ($wpdb->query('COMMIT') === false) { throw new RuntimeException('Could not commit the new order.'); }
     } catch (Throwable $error) {
         $wpdb->query('ROLLBACK');
         foreach ($lock_ids as $id) { clean_post_cache($id); if ($kind !== 'projects') { acf_flush_value_cache($id, 'order'); } }
@@ -115,9 +115,9 @@ function portfolio_order_save($kind, $category, $ids, $token) {
 
 function portfolio_order_scope($raw) {
     $kind = $raw['kind'] ?? 'projects';
-    if (!in_array($kind, ['projects', 'technologies'], true)) { throw new RuntimeException('Nieznany rodzaj listy.'); }
+    if (!in_array($kind, ['projects', 'technologies'], true)) { throw new RuntimeException('Unknown list type.'); }
     $category = $kind === 'projects' ? '' : ($raw['category'] ?? 'frontend');
-    if ($kind === 'technologies' && (!is_string($category) || !array_key_exists($category, portfolio_technology_categories() + ['uncategorized' => []]))) { throw new RuntimeException('Nieznana kategoria.'); }
+    if ($kind === 'technologies' && (!is_string($category) || !array_key_exists($category, portfolio_technology_categories() + ['uncategorized' => []]))) { throw new RuntimeException('Unknown category.'); }
     return [$kind, $category];
 }
 
@@ -126,7 +126,7 @@ function portfolio_order_url($kind, $category = '') {
 }
 
 add_action('admin_menu', function () {
-    add_submenu_page('portfolio-projects', 'Kolejność portfolio', 'Kolejność', 'edit_others_posts', 'portfolio-order', 'portfolio_order_page');
+    add_submenu_page('portfolio-projects', 'Portfolio order', 'Order', 'edit_others_posts', 'portfolio-order', 'portfolio_order_page');
 });
 add_action('admin_enqueue_scripts', function ($hook) {
     if ($hook !== 'portfolio_page_portfolio-order') { return; }
@@ -140,26 +140,26 @@ function portfolio_order_page() {
         $items = portfolio_order_items($kind, $category);
         portfolio_order_permissions($kind, $items);
     } catch (Throwable $error) { wp_die(esc_html($error->getMessage())); }
-    echo '<div class="wrap portfolio-order"><h1>Kolejność portfolio</h1><nav class="nav-tab-wrapper" aria-label="Rodzaj listy">';
-    foreach (['projects' => 'Projekty', 'technologies' => 'Technologie'] as $key => $label) {
+    echo '<div class="wrap portfolio-order"><h1>Portfolio order</h1><nav class="nav-tab-wrapper" aria-label="List type">';
+    foreach (['projects' => 'Projects', 'technologies' => 'Technologies'] as $key => $label) {
         printf('<a class="nav-tab%s" href="%s" %s>%s</a>', $kind === $key ? ' nav-tab-active' : '', esc_url(portfolio_order_url($key, $key === 'technologies' ? 'frontend' : '')), $kind === $key ? 'aria-current="page"' : '', esc_html($label));
     }
     echo '</nav>';
     if ($kind === 'technologies') {
-        echo '<form method="get" class="portfolio-order-filter"><input type="hidden" name="page" value="portfolio-order"><input type="hidden" name="kind" value="technologies"><label>Kategoria <select name="category">';
-        foreach (portfolio_technology_categories() + ['uncategorized' => ['pl' => 'Pozostałe']] as $key => $labels) {
-            printf('<option value="%s" %s>%s</option>', esc_attr($key), selected($category, $key, false), esc_html($labels['pl']));
+        echo '<form method="get" class="portfolio-order-filter"><input type="hidden" name="page" value="portfolio-order"><input type="hidden" name="kind" value="technologies"><label>Category <select name="category">';
+        foreach (portfolio_technology_categories() + ['uncategorized' => ['en' => 'Other']] as $key => $labels) {
+            printf('<option value="%s" %s>%s</option>', esc_attr($key), selected($category, $key, false), esc_html($labels['en']));
         }
-        echo '</select></label> '; submit_button('Wyświetl', 'secondary', 'submit', false); echo '</form>';
+        echo '</select></label> '; submit_button('Show', 'secondary', 'submit', false); echo '</form>';
     }
-    if (isset($_GET['saved'])) { echo '<div class="notice notice-success"><p>Zapisano kolejność.</p></div>'; }
-    echo '<p>Przeciągnij pozycję za uchwyt lub użyj przycisków w górę i w dół. Zmiany zostaną zapisane po kliknięciu „Zapisz kolejność”.</p>';
-    if ($kind === 'projects') { echo '<p>Kolejność jest wspólna dla wszystkich wersji językowych projektu.</p>'; }
-    echo '<p>Strona odzwierciedli nową kolejność po odświeżeniu danych i przebudowaniu frontendu.</p>';
+    if (isset($_GET['saved'])) { echo '<div class="notice notice-success"><p>Order saved.</p></div>'; }
+    echo '<p>Drag items by their handles or use the up and down buttons. Click Save order to save your changes.</p>';
+    if ($kind === 'projects') { echo '<p>Project order is shared across all language versions.</p>'; }
+    echo '<p>Refresh the exported data and rebuild the frontend to show the new order on the site.</p>';
     echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="portfolio-order-form">';
     wp_nonce_field('portfolio_order_' . $kind . '_' . $category);
     printf('<input type="hidden" name="action" value="portfolio_order_save"><input type="hidden" name="kind" value="%s"><input type="hidden" name="category" value="%s"><input type="hidden" name="token" value="%s">', esc_attr($kind), esc_attr($category), esc_attr(portfolio_order_token($items)));
-    echo '<div class="portfolio-order-actions"><button type="submit" class="button button-primary" data-order-save disabled>Zapisz kolejność</button> <button type="button" class="button" data-order-reset disabled>Cofnij niezapisane zmiany</button> <span data-order-status role="status" aria-live="polite">Brak niezapisanych zmian.</span></div><ol class="portfolio-order-list">';
+    echo '<div class="portfolio-order-actions"><button type="submit" class="button button-primary" data-order-save disabled>Save order</button> <button type="button" class="button" data-order-reset disabled>Discard unsaved changes</button> <span data-order-status role="status" aria-live="polite">No unsaved changes.</span></div><ol class="portfolio-order-list">';
     foreach ($items as $index => $item) {
         $id = $item['id']; $title = $item['title'];
         printf('<li data-order-id="%d"><input type="hidden" name="ids[]" value="%d"><span class="portfolio-order-number">%d</span><span class="dashicons dashicons-move portfolio-order-grip" aria-hidden="true"></span>', $id, $id, $index + 1);
@@ -172,12 +172,12 @@ function portfolio_order_page() {
         }
         if ($item['status'] !== 'publish') { echo '<small>' . esc_html(get_post_status_object($item['status'])->label) . '</small>'; }
         echo '</span><span class="portfolio-order-controls">';
-        foreach (['up' => 'w górę', 'down' => 'w dół'] as $direction => $label) {
-            printf('<button type="button" class="button" data-order-move="%s" aria-label="%s"><span class="dashicons dashicons-arrow-%s-alt2" aria-hidden="true"></span></button>', $direction, esc_attr('Przesuń ' . $title . ' ' . $label), $direction);
+        foreach (['up' => 'up', 'down' => 'down'] as $direction => $label) {
+            printf('<button type="button" class="button" data-order-move="%s" aria-label="%s"><span class="dashicons dashicons-arrow-%s-alt2" aria-hidden="true"></span></button>', $direction, esc_attr('Move ' . $title . ' ' . $label), $direction);
         }
         echo '</span></li>';
     }
-    echo '</ol></form><noscript><p>Włącz JavaScript, aby przestawiać pozycje.</p></noscript></div>';
+    echo '</ol></form><noscript><p>Enable JavaScript to reorder items.</p></noscript></div>';
 }
 
 add_action('admin_post_portfolio_order_save', function () {
@@ -186,7 +186,7 @@ add_action('admin_post_portfolio_order_save', function () {
         [$kind, $category] = portfolio_order_scope($raw);
         check_admin_referer('portfolio_order_' . $kind . '_' . $category);
         portfolio_order_save($kind, $category, $raw['ids'] ?? [], is_string($raw['token'] ?? null) ? $raw['token'] : '');
-    } catch (Throwable $error) { wp_die(esc_html($error->getMessage()), 'Nie zapisano kolejności', ['back_link' => true]); }
+    } catch (Throwable $error) { wp_die(esc_html($error->getMessage()), 'Order not saved', ['back_link' => true]); }
     wp_safe_redirect(add_query_arg('saved', '1', portfolio_order_url($kind, $category))); exit;
 });
 
@@ -198,7 +198,7 @@ add_filter('acf/prepare_field', function ($field) {
 });
 add_action('edit_form_after_title', function ($post) {
     if ($post->post_type === 'technology') {
-        printf('<p>Kolejność na stronie ustawisz w <a href="%s">Portfolio → Kolejność → Technologie</a>.</p>', esc_url(portfolio_order_url('technologies', get_post_meta($post->ID, 'technology_category', true) ?: 'frontend')));
+        printf('<p>Set the display order in <a href="%s">Portfolio → Order → Technologies</a>.</p>', esc_url(portfolio_order_url('technologies', get_post_meta($post->ID, 'technology_category', true) ?: 'frontend')));
     }
 });
 add_action('wp_after_insert_post', function ($id, $post, $update, $before) {

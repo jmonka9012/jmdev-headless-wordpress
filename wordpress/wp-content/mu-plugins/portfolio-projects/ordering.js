@@ -17,7 +17,7 @@
       });
       form.querySelector('[data-order-save]').disabled = !dirty;
       form.querySelector('[data-order-reset]').disabled = !dirty;
-      status.textContent = [announcement, dirty ? 'Niezapisane zmiany.' : 'Brak niezapisanych zmian.'].filter(Boolean).join(' ');
+      status.textContent = [announcement, dirty ? 'Unsaved changes.' : 'No unsaved changes.'].filter(Boolean).join(' ');
     };
 
     $(list).sortable({
@@ -28,7 +28,7 @@
       forcePlaceholderSize: true,
       update: function (_, ui) {
         const title = ui.item[0].querySelector('.portfolio-order-title a').textContent;
-        refresh(`${title}: pozycja ${[...list.children].indexOf(ui.item[0]) + 1}.`);
+        refresh(`${title}: position ${[...list.children].indexOf(ui.item[0]) + 1}.`);
       },
     });
 
@@ -42,13 +42,13 @@
       if (up) sibling.before(row);
       else sibling.after(row);
       const title = row.querySelector('.portfolio-order-title a').textContent;
-      refresh(`${title}: pozycja ${[...list.children].indexOf(row) + 1}.`);
+      refresh(`${title}: position ${[...list.children].indexOf(row) + 1}.`);
       const focus = button.disabled ? row.querySelector(`[data-order-move="${up ? 'down' : 'up'}"]`) : button;
       focus.focus();
     });
     form.querySelector('[data-order-reset]').addEventListener('click', () => {
       initial.forEach(row => list.append(row));
-      refresh('Przywrócono zapisaną kolejność.');
+      refresh('Saved order restored.');
     });
     form.addEventListener('submit', () => { dirty = false; });
     window.addEventListener('beforeunload', (event) => {

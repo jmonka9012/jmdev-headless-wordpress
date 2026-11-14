@@ -39,7 +39,7 @@ $GLOBALS['groups'] = [['fields' => [['key' => 'existing_tech', 'name' => 'stack'
 portfolio_register_project_fields();
 check(count(array_filter($GLOBALS['registered']['fields'], fn($f) => !in_array($f['type'], ['tab', 'message'], true))) === 4, 'Existing relationship is not duplicated.');
 $type_field = array_values(array_filter($GLOBALS['registered']['fields'], fn($f) => ($f['name'] ?? '') === 'project_type'))[0];
-check($type_field['choices'] === ['commercial' => 'Komercyjny', 'personal' => 'Osobisty'] && $type_field['required'] === 1, 'Project type is an explicit choice.');
+check(array_keys($type_field['choices']) === ['commercial', 'personal'] && $type_field['required'] === 1, 'Project type is an explicit choice.');
 check(!isset($type_field['default_value']), 'New projects have no inferred type.');
 $GLOBALS['values'] = ['existing_tech' => [77, 77, 78, 99], 'photo_1' => 10, 'photo_3' => 11];
 $payload = portfolio_project_payload(1);
