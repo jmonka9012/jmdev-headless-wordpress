@@ -4,13 +4,13 @@ The `portfolio-projects.php` MU plugin loads automatically with WordPress. It re
 
 ## Field definitions
 
-`acf-fields.php` registers the original ACF groups on `acf/init` at priority 5,
+`schema/acf-fields.php` registers the original ACF groups on `acf/init` at priority 5,
 before the project schema resolves existing relationships:
 
-- `fields/content.php`: homepage content, including nested section fields.
-- `fields/meta.php`: template and language fields.
-- `fields/project.php`: legacy project order, link and image fields.
-- `fields/technology.php`: the existing technology order field.
+- `schema/fields/content.php`: homepage content, including nested section fields.
+- `schema/fields/meta.php`: template and language fields.
+- `schema/fields/project.php`: legacy project order, link and image fields.
+- `schema/fields/technology.php`: the existing technology order field.
 
 These four groups contain 42 fields, including nested fields. Their original
 group keys, field keys, names, locations, validation settings and return formats
@@ -19,15 +19,15 @@ validate, format and store their values. Database definition records are retaine
 as a fallback; local PHP definitions take precedence. An admin notice identifies
 the groups managed in code.
 
-The structured project fields in `schema.php` and the category field in
-`technology-categories.php` were already registered in PHP. All six active field
+The structured project fields in `projects/schema.php` and the category field in
+`technologies/categories.php` were already registered in PHP. All six active field
 groups now come from code.
 
 ## Technology post type
 
-`post-types.php` registers `technology` on `init` at priority 0, before ACF
+`schema/post-types.php` registers `technology` on `init` at priority 0, before ACF
 processes its retained database record. The arguments in
-`post-types/technology.php` preserve the exported ACF configuration, including
+`schema/post-types/technology.php` preserve the exported ACF configuration, including
 labels, capabilities, supports, rewrite settings and REST exposure. Existing
 technology IDs, slugs, images, categories and values remain unchanged. An empty
 database no longer needs an ACF post-type definition for Technology to exist.
@@ -40,7 +40,7 @@ Registration and legacy field-key contracts can be checked without WordPress,
 from the backend repository root:
 
 ```sh
-php wordpress/wp-content/mu-plugins/portfolio-projects/tests/acf-fields.php
+php wordpress/wp-content/mu-plugins/portfolio-projects/tests/schema/acf-fields.php
 ```
 
 ## Editing
@@ -71,9 +71,9 @@ Technologies use the same shared admin layout, image control and ACF field adapt
 The compatibility option leaves native navigation available
 for installations that have not enabled the managed editing surface.
 
-`admin-ui.php` supplies the shared header, language buttons, image input and
+`admin/shared/ui.php` supplies the shared header, language buttons, image input and
 project-type control. Common editor styles and language-tab behavior are defined
-once in `language-admin.css` and `language-admin.js`. Managed image collections
+once in `assets/language-admin.css` and `assets/language-admin.js`. Managed image collections
 carry an explicit row-kind marker, so ACF's normalized form names do not change
 gallery controls into Challenge controls.
 
@@ -91,7 +91,7 @@ Unlinked pages remain independent entries. Existing installations must link
 known translations explicitly; unrelated pages are never grouped automatically.
 Native IDs, slugs, ACF values and REST responses are preserved.
 
-The editor renders the applicable ACF groups through `admin-fields.php` without
+The editor renders the applicable ACF groups through `admin/shared/fields.php` without
 duplicating their field definitions. Language identity is not an editable content
 field. The existing template text field and its behavior remain unchanged.
 Registered field keys are whitelisted, nested values and ACF validation are
@@ -124,7 +124,7 @@ English labels independently of the localized labels exposed to the frontend.
 
 ## Technology category labels
 
-`technology-categories.php` defines category identifiers, order and English
+`technologies/categories.php` defines category identifiers, order and English
 defaults in PHP. Technology entries store only the selected `technology_category`
 identifier; changing a label does not reassign technologies or change their order.
 
@@ -239,7 +239,7 @@ Challenge screenshots use the same ordered image rows as the Hero gallery. Exist
 
 ## Managed multilingual projects — schema v2
 
-`multilingual.php` and `language-admin.php` preserve native `post` records and IDs while exposing one project editor. The root owns `_portfolio_shared` (technologies, project URL/order, gallery/Challenge IDs and media). Each translation owns native title/excerpt/content and `_portfolio_local` (SEO, outcome, Challenge copy and per-usage image alts/captions). `_portfolio_root_id`, `_portfolio_project_key`, `_portfolio_locale` and `_portfolio_public_slug` provide identity and routing. The central `portfolio_languages` option supports registering another language once and selecting it when creating a draft translation. New translated UI copy still needs to be supplied; the current frontend UI is PL/EN.
+`projects/multilingual.php` and `admin/projects.php` preserve native `post` records and IDs while exposing one project editor. The root owns `_portfolio_shared` (technologies, project URL/order, gallery/Challenge IDs and media). Each translation owns native title/excerpt/content and `_portfolio_local` (SEO, outcome, Challenge copy and per-usage image alts/captions). `_portfolio_root_id`, `_portfolio_project_key`, `_portfolio_locale` and `_portfolio_public_slug` provide identity and routing. The central `portfolio_languages` option supports registering another language once and selecting it when creating a draft translation. New translated UI copy still needs to be supplied; the current frontend UI is PL/EN.
 
 The Portfolio menu contains one row per logical project. Language buttons switch all localized fields, including nested image alts and Challenges. Shared media are edited once. Existing custom `portfolio_rows` controls remain. Save checks nonce, permissions for every translation, concurrent changes and media/URL validity before a transactional update. New translations begin as drafts. The old editing surface redirects only when the `portfolio_language_ui_enabled` option is enabled. Historical ACF and category data remain stored but do not control managed project languages. Managed Home pages likewise expose their registered locale through the REST adapter.
 
@@ -255,3 +255,16 @@ as drafts; repeat submissions reuse their creation key. Existing IDs, relations
 and order values are preserved. Use **Order** to reorder technologies. Native
 list/new/edit routes redirect to this interface when managed editing is enabled.
 Saves use nonce/capability checks, stale tokens, locks and transactions.
+
+## Source layout
+
+The root MU-plugin file loads `bootstrap.php`, which wires the modules in order.
+
+- `admin/`: resource editors, ordering and category-label settings.
+- `admin/shared/`: common UI and ACF field adapters.
+- `projects/`: project schema, multilingual presentation and compatibility.
+- `technologies/`: category definitions and public labels.
+- `schema/`: PHP ACF definitions and content-type registration.
+- `fields/`: the custom ACF row field implementation.
+- `assets/`: admin JavaScript and styles.
+- `tests/`: isolated plugin contracts.

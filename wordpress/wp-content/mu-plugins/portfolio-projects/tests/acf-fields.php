@@ -5,7 +5,7 @@ $GLOBALS['groups'] = [];
 function add_action($name, $callback, $priority = 10) { $GLOBALS['actions'][$name] = [$callback, $priority]; }
 function acf_add_local_field_group($group) { $GLOBALS['groups'][$group['key']] = $group; }
 function check($valid, $message) { if (!$valid) { throw new RuntimeException($message); } }
-require dirname(__DIR__) . '/acf-fields.php';
+require dirname(__DIR__) . '/schema/acf-fields.php';
 [$register, $priority] = $GLOBALS['actions']['acf/init'];
 check($priority < 30, 'Base fields must load before the project schema resolves relationships.');
 $register();

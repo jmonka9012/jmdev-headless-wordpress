@@ -21,8 +21,8 @@ function acf_get_fields($parent) { return $parent['fields'] ?? []; }
 function acf_add_local_field_group($group) { $GLOBALS['registered'] = $group; }
 function get_field($key, $id, $format = true) { return $GLOBALS['values'][$key] ?? null; }
 function check($valid, $message) { if (!$valid) { throw new RuntimeException($message); } }
-require dirname(__DIR__) . '/schema.php';
-require dirname(__DIR__) . '/rows-field.php';
+require dirname(__DIR__) . '/projects/schema.php';
+require dirname(__DIR__) . '/fields/rows.php';
 
 $field = new Portfolio_Project_Rows();
 check(portfolio_project_rows_are_images(['_name' => 'portfolio[gallery]', '_portfolio_row_kind' => 'image']), 'Managed galleries retain image controls after ACF normalizes field names.');

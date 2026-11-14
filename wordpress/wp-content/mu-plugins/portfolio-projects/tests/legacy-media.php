@@ -12,7 +12,7 @@ function get_post_thumbnail_id($id) { return get_post_meta($id, '_thumbnail_id',
 function set_post_thumbnail($id, $value) { update_post_meta($id, '_thumbnail_id', $value); }
 function update_field($key, $value, $id) { update_post_meta($id, 'project_gallery', $value); }
 function check($valid, $message) { if (!$valid) { throw new RuntimeException($message); } }
-require dirname(__DIR__) . '/legacy-media.php';
+require dirname(__DIR__) . '/projects/legacy-media.php';
 $GLOBALS['meta'] = [
     1 => ['photo_1' => '10', 'photo_2' => 11, 'photo_3' => 'https://example.test/photo.png'],
     2 => ['photo_1' => 10, 'project_gallery' => [['image' => 12, 'caption' => 'Keep me']], '_thumbnail_id' => 11],

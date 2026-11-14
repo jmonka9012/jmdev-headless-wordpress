@@ -8,7 +8,7 @@ function wp_enqueue_editor() {}
 function wp_enqueue_script(...$args) {}
 function wp_enqueue_style(...$args) {}
 function plugins_url($path, $file) { return $path; }
-require dirname(__DIR__) . '/admin-ui.php';
+require dirname(__DIR__) . '/admin/shared/ui.php';
 foreach ([0, 999] as $id) {
     portfolio_admin_enqueue_editor($id);
     if ($GLOBALS['media'] !== [] || $GLOBALS['context']['post_id'] !== 0) { throw new RuntimeException('List/new/invalid views must omit the media post argument.'); }

@@ -10,8 +10,8 @@ function portfolio_languages() { return $GLOBALS['languages'] ?? ['pl' => 'Polis
 function sanitize_text_field($value) { return trim(preg_replace('/\s+/', ' ', strip_tags($value))); }
 function add_settings_error(...$args) { $GLOBALS['errors'][] = $args; }
 function check($valid, $message) { if (!$valid) { throw new RuntimeException($message); } }
-require dirname(__DIR__) . '/technology-categories.php';
-require dirname(__DIR__) . '/technology-category-admin.php';
+require dirname(__DIR__) . '/technologies/categories.php';
+require dirname(__DIR__) . '/admin/category-labels.php';
 $GLOBALS['actions']['acf/init']();
 $field = $GLOBALS['group']['fields'][0];
 check(count($field['choices']) === 5 && $field['required'] === 1, 'Category requires an explicit selection.');

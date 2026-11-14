@@ -17,8 +17,8 @@ class Portfolio_Project_Rows extends acf_field {
 
     public function input_admin_enqueue_scripts() {
         wp_enqueue_media();
-        wp_enqueue_script('portfolio-project-rows', plugins_url('rows.js', __FILE__), ['acf-input'], '1.2.1', true);
-        wp_enqueue_style('portfolio-project-rows', plugins_url('rows.css', __FILE__), [], '1.2.0');
+        wp_enqueue_script('portfolio-project-rows', plugins_url('assets/rows.js', dirname(__DIR__) . '/bootstrap.php'), ['acf-input'], '1.2.1', true);
+        wp_enqueue_style('portfolio-project-rows', plugins_url('assets/rows.css', dirname(__DIR__) . '/bootstrap.php'), [], '1.2.0');
     }
 
     public function render_field($field) {

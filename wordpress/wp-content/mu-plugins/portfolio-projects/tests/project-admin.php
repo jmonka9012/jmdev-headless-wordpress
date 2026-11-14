@@ -31,10 +31,10 @@ class Project_Test_DB {
     public function query($query) { $this->queries[] = $query; return 0; }
 }
 $GLOBALS['wpdb'] = new Project_Test_DB();
-require dirname(__DIR__) . '/schema.php';
-require dirname(__DIR__) . '/multilingual.php';
-require dirname(__DIR__) . '/admin-ui.php';
-require dirname(__DIR__) . '/project-admin.php';
+require dirname(__DIR__) . '/projects/schema.php';
+require dirname(__DIR__) . '/projects/multilingual.php';
+require dirname(__DIR__) . '/admin/shared/ui.php';
+require dirname(__DIR__) . '/admin/project-create.php';
 function check($valid, $message) { if (!$valid) { throw new RuntimeException($message); } }
 function rejects($callback) { try { $callback(); } catch (RuntimeException $error) { return; } throw new RuntimeException('Invalid operation accepted.'); }
 check(portfolio_project_available_slug('Example', ['example', 'example-2']) === 'example-3', 'New public slugs avoid existing projects across languages.');

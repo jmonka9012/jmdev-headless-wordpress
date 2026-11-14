@@ -7,9 +7,9 @@ $GLOBALS['meta'] = [];
 function wp_slash($value) { return $value; }
 function update_post_meta($id, $key, $value) { $GLOBALS['meta'][$id][$key] = is_scalar($value) ? (string) $value : $value; }
 function get_post_meta($id, $key, $single = true) { return $GLOBALS['meta'][$id][$key] ?? ''; }
-require dirname(__DIR__) . '/schema.php';
-require dirname(__DIR__) . '/multilingual.php';
-require dirname(__DIR__) . '/language-admin.php';
+require dirname(__DIR__) . '/projects/schema.php';
+require dirname(__DIR__) . '/projects/multilingual.php';
+require dirname(__DIR__) . '/admin/projects.php';
 function check($valid, $message) { if (!$valid) { throw new RuntimeException($message); } }
 portfolio_store_meta(1, '_portfolio_root_id', 204);
 portfolio_store_meta(1, '_portfolio_local', ['images' => ['a' => ['alt' => 'A \\ B']]]);

@@ -14,7 +14,7 @@ function portfolio_store_meta($id, $key, $value) { $GLOBALS['meta'][$id][$key] =
 function acf_get_field_groups($query) { return [[]]; }
 function acf_get_fields($group) { return [['name' => 'order', 'key' => 'field_actual_order']]; }
 function update_field($key, $value, $id) { check($key === 'field_actual_order', 'Existing ACF field key is reused.'); $GLOBALS['meta'][$id]['order'] = (string) $value; }
-require dirname(__DIR__) . '/ordering.php';
+require dirname(__DIR__) . '/admin/ordering.php';
 $items = [['id' => 1, 'version' => 'one'], ['id' => 2, 'version' => 'two']];
 $token = portfolio_order_token($items);
 check(portfolio_order_validate($items, ['2', '1'], $token) === [2, 1], 'Complete permutation accepted.');

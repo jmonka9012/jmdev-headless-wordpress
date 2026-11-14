@@ -11,9 +11,9 @@ function get_post_type($id) { return get_post($id)->post_type ?? null; }
 function get_post_meta($id, $key, $single = true) { return $GLOBALS['meta'][$id][$key] ?? ''; }
 function get_field($key, $id) { return 'pl'; }
 function get_posts($args) { return array_values(array_filter($GLOBALS['posts'],static fn($post)=>get_post_meta($post->ID,$args['meta_key']) == $args['meta_value'])); }
-require dirname(__DIR__) . '/admin-ui.php';
-require dirname(__DIR__) . '/admin-fields.php';
-require dirname(__DIR__) . '/page-admin.php';
+require dirname(__DIR__) . '/admin/shared/ui.php';
+require dirname(__DIR__) . '/admin/shared/fields.php';
+require dirname(__DIR__) . '/admin/pages.php';
 function check($value, $message) { if (!$value) { throw new RuntimeException($message); } }
 function rejects($callback) { try { $callback(); } catch (RuntimeException $e) { return; } throw new RuntimeException('Invalid data accepted.'); }
 $text=['key'=>'field_text','name'=>'text','label'=>'Text','type'=>'text'];
@@ -36,7 +36,7 @@ $GLOBALS['meta']=[1=>['_portfolio_page_root_id'=>1,'_portfolio_page_key'=>'page-
 check(portfolio_page_root(2)===1 && portfolio_page_root(3)===3,'Page identity requires a matching explicit key.');
 check(count(portfolio_page_versions(1))===2,'Unrelated pages do not enter a translation group.');
 check(portfolio_page_versions(999)===[],'Unknown pages do not produce invalid editor records.');
-require dirname(__DIR__) . '/technology-admin.php';
+require dirname(__DIR__) . '/admin/technologies.php';
 rejects(fn()=>portfolio_technology_save(1, '', [], []));
 $GLOBALS['can_edit']=false; rejects(fn()=>portfolio_technology_save(0, '', [], []));
 $GLOBALS['can_edit']=true;

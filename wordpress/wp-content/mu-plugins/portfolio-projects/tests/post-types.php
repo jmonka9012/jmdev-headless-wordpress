@@ -6,7 +6,7 @@ function add_action($name, $callback, $priority = 10) { $GLOBALS['actions'][$nam
 function post_type_exists($name) { return isset($GLOBALS['types'][$name]); }
 function register_post_type($name, $args) { $GLOBALS['types'][$name] = $args; $GLOBALS['registrations'] = ($GLOBALS['registrations'] ?? 0) + 1; }
 function check($ok, $message) { if (!$ok) { throw new RuntimeException($message); } }
-require dirname(__DIR__) . '/post-types.php';
+require dirname(__DIR__) . '/schema/post-types.php';
 [$register, $priority] = $GLOBALS['actions']['init'];
 check($priority === 0, 'Code must register before ACF reads database post types.');
 $register();

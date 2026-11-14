@@ -13,5 +13,5 @@ add_action('init', 'portfolio_register_technology_post_type', 0);
 add_action('admin_notices', function () {
     $screen = get_current_screen();
     if (!$screen || $screen->post_type !== 'acf-post-type') { return; }
-    echo '<div class="notice notice-info"><p>The Technology post type is defined in <code>mu-plugins/portfolio-projects/post-types/technology.php</code>. The ACF record remains as a backup; the PHP definition is active.</p></div>';
+    echo '<div class="notice notice-info"><p>The Technology post type is defined in <code>mu-plugins/portfolio-projects/schema/post-types/technology.php</code>. The ACF record remains as a backup; the PHP definition is active.</p></div>';
 });

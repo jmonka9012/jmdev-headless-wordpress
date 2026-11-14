@@ -130,8 +130,8 @@ add_action('admin_menu', function () {
 });
 add_action('admin_enqueue_scripts', function ($hook) {
     if ($hook !== 'portfolio_page_portfolio-order') { return; }
-    wp_enqueue_script('portfolio-order', plugins_url('ordering.js', __FILE__), ['jquery-ui-sortable'], (string) filemtime(__DIR__ . '/ordering.js'), true);
-    wp_enqueue_style('portfolio-order', plugins_url('ordering.css', __FILE__), [], (string) filemtime(__DIR__ . '/ordering.css'));
+    wp_enqueue_script('portfolio-order', plugins_url('assets/ordering.js', dirname(__DIR__) . '/bootstrap.php'), ['jquery-ui-sortable'], (string) filemtime(dirname(__DIR__) . '/assets/ordering.js'), true);
+    wp_enqueue_style('portfolio-order', plugins_url('assets/ordering.css', dirname(__DIR__) . '/bootstrap.php'), [], (string) filemtime(dirname(__DIR__) . '/assets/ordering.css'));
 });
 
 function portfolio_order_page() {

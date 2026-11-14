@@ -24,8 +24,8 @@ function portfolio_admin_enqueue_editor($post_id = 0) {
     $post = $post_id ? get_post($post_id) : null;
     acf_enqueue_scripts(); acf_localize_data(['post_id' => $post ? $post->ID : 0]);
     wp_enqueue_media($post ? ['post' => $post->ID] : []); wp_enqueue_editor();
-    wp_enqueue_script('portfolio-language-editor', plugins_url('language-admin.js', __FILE__), ['acf-input'], (string) filemtime(__DIR__ . '/language-admin.js'), true);
-    wp_enqueue_style('portfolio-language-editor', plugins_url('language-admin.css', __FILE__), [], (string) filemtime(__DIR__ . '/language-admin.css'));
+    wp_enqueue_script('portfolio-language-editor', plugins_url('assets/language-admin.js', dirname(__DIR__, 2) . '/bootstrap.php'), ['acf-input'], (string) filemtime(dirname(__DIR__, 2) . '/assets/language-admin.js'), true);
+    wp_enqueue_style('portfolio-language-editor', plugins_url('assets/language-admin.css', dirname(__DIR__, 2) . '/bootstrap.php'), [], (string) filemtime(dirname(__DIR__, 2) . '/assets/language-admin.css'));
 }
 
 function portfolio_admin_creation_fields($action) {
