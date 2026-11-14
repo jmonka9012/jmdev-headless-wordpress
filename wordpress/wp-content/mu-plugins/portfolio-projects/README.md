@@ -67,6 +67,31 @@ Drag rows or use the move buttons, then click **Save order**. **Discard unsaved
 changes** restores the order from page load. Category choices in the admin use
 English labels independently of the localized labels exposed to the frontend.
 
+## Technology category labels
+
+`technology-categories.php` defines category identifiers, order and English
+defaults in PHP. Technology entries store only the selected `technology_category`
+identifier; changing a label does not reassign technologies or change their order.
+
+Administrators can edit public labels in **Portfolio → Category labels**. Values
+are stored in the `portfolio_category_labels` WordPress option as
+`{category_key: {locale: label}}`. The screen includes PL/EN and any additional
+languages registered for the portfolio. Definitions remain in code; translated
+display values belong to site configuration and are not shipped with the plugin.
+
+The screen uses the WordPress Settings API for nonce and capability checks.
+Labels are sanitized as plain text. Incomplete or malformed submissions preserve
+the previous settings and report an error. Unknown categories/locales are ignored.
+An empty or missing translation uses the configured English label; an empty or
+invalid English label uses the PHP default. A clean installation therefore works
+with English labels without a content import.
+
+REST retains `portfolio_category: {key, labels, order}`. Both the frontend and
+the API consume the same saved labels; admin category choices remain the stable
+English definitions. Existing installations should copy their current localized
+labels into the option before replacing old source-defined labels. Refresh the
+frontend data export and rebuild the static site after editing labels.
+
 ## Compatibility and technologies
 
 Nothing removes or overwrites the original `photo_1`, `photo_2`, `photo_3`, link, language, order, title, excerpt, or content. A valid new gallery takes precedence. If it is empty, the old photos remain the fallback. Clearing a new gallery therefore restores old images until the old fields are cleared explicitly. The archive uses the native featured image, independently of Hero gallery ordering. Before import, the original `photo_1` remains its fallback.

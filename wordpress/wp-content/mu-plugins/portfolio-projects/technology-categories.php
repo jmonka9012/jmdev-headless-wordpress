@@ -1,14 +1,35 @@
 <?php
 if (!defined('ABSPATH')) { exit; }
 
-function portfolio_technology_categories() {
+function portfolio_technology_category_definitions() {
     return [
-        'frontend' => ['pl' => 'Front-end', 'en' => 'Front-end'],
-        'cms' => ['pl' => 'CMS i sklepy', 'en' => 'CMS & commerce'],
-        'motion' => ['pl' => 'Ruch i UI', 'en' => 'Motion & UI'],
-        'code' => ['pl' => 'Kod i dane', 'en' => 'Code & data'],
-        'workflow' => ['pl' => 'Warsztat', 'en' => 'Workflow'],
+        'frontend' => 'Front-end',
+        'cms' => 'CMS & commerce',
+        'motion' => 'Motion & UI',
+        'code' => 'Code & data',
+        'workflow' => 'Workflow',
     ];
+}
+
+function portfolio_category_languages() {
+    return array_replace(['pl' => 'Polish', 'en' => 'English'], portfolio_languages());
+}
+
+function portfolio_technology_categories() {
+    $stored = get_option('portfolio_category_labels', []);
+    $label = static function ($value, $fallback) {
+        $text = is_string($value) ? sanitize_text_field($value) : '';
+        return $text !== '' ? $text : $fallback;
+    };
+    $categories = [];
+    foreach (portfolio_technology_category_definitions() as $key => $default) {
+        $values = is_array($stored) && is_array($stored[$key] ?? null) ? $stored[$key] : [];
+        $fallback = $label($values['en'] ?? null, $default);
+        foreach (portfolio_category_languages() as $locale => $name) {
+            $categories[$key][$locale] = $label($values[$locale] ?? null, $fallback);
+        }
+    }
+    return $categories;
 }
 
 function portfolio_technology_category($id) {
@@ -24,7 +45,7 @@ add_action('acf/init', function () {
         'fields' => [[
             'key' => 'field_portfolio_technology_category', 'name' => 'technology_category',
             'label' => 'Category', 'type' => 'select', 'required' => 1, 'allow_null' => 1,
-            'choices' => array_map(static fn($labels) => $labels['en'], portfolio_technology_categories()),
+            'choices' => portfolio_technology_category_definitions(),
             'return_format' => 'value',
         ]],
         'location' => [[['param' => 'post_type', 'operator' => '==', 'value' => 'technology']]],

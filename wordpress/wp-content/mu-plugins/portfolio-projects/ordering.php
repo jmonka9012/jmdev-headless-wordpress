@@ -147,8 +147,8 @@ function portfolio_order_page() {
     echo '</nav>';
     if ($kind === 'technologies') {
         echo '<form method="get" class="portfolio-order-filter"><input type="hidden" name="page" value="portfolio-order"><input type="hidden" name="kind" value="technologies"><label>Category <select name="category">';
-        foreach (portfolio_technology_categories() + ['uncategorized' => ['en' => 'Other']] as $key => $labels) {
-            printf('<option value="%s" %s>%s</option>', esc_attr($key), selected($category, $key, false), esc_html($labels['en']));
+        foreach (portfolio_technology_category_definitions() + ['uncategorized' => 'Other'] as $key => $label) {
+            printf('<option value="%s" %s>%s</option>', esc_attr($key), selected($category, $key, false), esc_html($label));
         }
         echo '</select></label> '; submit_button('Show', 'secondary', 'submit', false); echo '</form>';
     }

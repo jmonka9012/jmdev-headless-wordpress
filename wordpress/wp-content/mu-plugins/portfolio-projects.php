@@ -11,6 +11,7 @@ require_once __DIR__ . '/portfolio-projects/legacy-media.php';
 require_once __DIR__ . '/portfolio-projects/multilingual.php';
 require_once __DIR__ . '/portfolio-projects/language-admin.php';
 require_once __DIR__ . '/portfolio-projects/technology-categories.php';
+require_once __DIR__ . '/portfolio-projects/technology-category-admin.php';
 require_once __DIR__ . '/portfolio-projects/ordering.php';
 add_action('acf/include_field_types', function () {
     require_once __DIR__ . '/portfolio-projects/rows-field.php';
