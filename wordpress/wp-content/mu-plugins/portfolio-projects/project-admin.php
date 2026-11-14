@@ -59,11 +59,7 @@ function portfolio_project_create_page() {
     portfolio_admin_header('Add project', ['All projects' => admin_url('admin.php?page=portfolio-projects')]);
     echo '<p>Create the first language version as a draft. Add translations from the project editor.</p>';
     echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><section>';
-    wp_nonce_field('portfolio_create_project');
-    printf('<input type="hidden" name="action" value="portfolio_create_project"><input type="hidden" name="portfolio[key]" value="%s">', esc_attr(wp_generate_uuid4()));
-    echo '<p><label>Title <input class="regular-text" name="portfolio[title]" required></label></p><p><label>Initial language <select name="portfolio[locale]" required>';
-    foreach (portfolio_languages() as $locale => $label) { printf('<option value="%s">%s</option>', esc_attr($locale), esc_html($label)); }
-    echo '</select></label></p>';
+    portfolio_admin_creation_fields('portfolio_create_project');
     portfolio_admin_project_type();
     submit_button('Create draft');
     echo '</section></form>';

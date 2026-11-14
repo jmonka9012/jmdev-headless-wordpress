@@ -17,4 +17,11 @@
     if (active) select(active.dataset.portfolioLanguage);
   });
   acf.addAction('append', () => { if (language) select(language); });
+  let dirty = false;
+  $(document).on('input change', '[data-portfolio-unsaved]', function () { dirty = true; });
+  $(document).on('submit', '[data-portfolio-unsaved]', function () { if (window.tinymce) window.tinymce.triggerSave(); dirty = false; });
+  acf.addAction('wysiwyg_tinymce_init', function (editor, id, settings, field) {
+    if (field.$el.closest('[data-portfolio-unsaved]').length) { editor.on('change keyup undo redo', function () { dirty = true; }); }
+  });
+  window.addEventListener('beforeunload', function (event) { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
 })(jQuery);

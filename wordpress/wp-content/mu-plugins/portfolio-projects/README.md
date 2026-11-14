@@ -67,8 +67,8 @@ With `portfolio_language_ui_enabled` enabled, the native Posts menu is hidden.
 Native post lists redirect to Portfolio; Add Post redirects to Add project; native
 post editing redirects to the managed editor or the Portfolio list for unmanaged
 entries. Unmanaged legacy drafts remain stored without being converted or deleted.
-Native Pages and Technologies remain available until their replacement editors
-are implemented. The compatibility option leaves native navigation available
+Technologies retain their native editor until its replacement is implemented.
+The compatibility option leaves native navigation available
 for installations that have not enabled the managed editing surface.
 
 `admin-ui.php` supplies the shared header, language buttons, image input and
@@ -76,6 +76,33 @@ project-type control. Common editor styles and language-tab behavior are defined
 once in `language-admin.css` and `language-admin.js`. Managed image collections
 carry an explicit row-kind marker, so ACF's normalized form names do not change
 gallery controls into Challenge controls.
+
+## Multilingual Pages
+
+With the managed editing surface enabled, **Pages** lists each logical page once
+with links to its language versions and publication statuses. Language tabs use
+the shared editor style; selecting a language opens its own form. **Save language
+version** updates only that native page record. Unsaved changes are guarded when
+leaving the form. Draft and published versions remain independent.
+
+Page relationships use `_portfolio_page_root_id` and `_portfolio_page_key`.
+They are explicit and do not depend on matching titles, slugs or templates.
+Unlinked pages remain independent entries. Existing installations must link
+known translations explicitly; unrelated pages are never grouped automatically.
+Native IDs, slugs, ACF values and REST responses are preserved.
+
+The editor renders the applicable ACF groups through `admin-fields.php` without
+duplicating their field definitions. Language identity is not an editable content
+field. The existing template text field and its behavior remain unchanged.
+Registered field keys are whitelisted, nested values and ACF validation are
+checked before writing, and saved values are read back inside the transaction.
+Nonce/capability checks, page locks and stale-form tokens protect saves.
+
+**Add page** creates a draft in the initial language. Further translations start
+as drafts with the same template and independent content. Repeated creation
+submissions reuse their page identity. Publishing a second Home page in the same
+language is rejected. Native Pages list/new/edit links redirect into this editor.
+Refresh the frontend export/build after changing content or publication status.
 
 Projects remain standard WordPress `post` entries. Use the native title, manual excerpt (Hero subtitle), and content (Overview). The structured project field group contains:
 

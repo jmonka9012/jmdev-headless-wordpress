@@ -69,9 +69,7 @@ add_action('admin_menu', function () {
 });
 add_action('admin_enqueue_scripts', function ($hook) {
     if ($hook !== 'toplevel_page_portfolio-projects') { return; }
-    acf_enqueue_scripts(); wp_enqueue_media(); wp_enqueue_editor();
-    wp_enqueue_script('portfolio-language-editor', plugins_url('language-admin.js', __FILE__), ['acf-input'], (string) filemtime(__DIR__ . '/language-admin.js'), true);
-    wp_enqueue_style('portfolio-language-editor', plugins_url('language-admin.css', __FILE__), [], (string) filemtime(__DIR__ . '/language-admin.css'));
+    portfolio_admin_enqueue_editor(absint($_GET['project'] ?? 0));
 });
 function portfolio_editor_page() {
     if (!current_user_can('edit_posts')) { wp_die('You do not have permission to perform this action.'); }
@@ -88,7 +86,7 @@ function portfolio_editor_page() {
             foreach (portfolio_project_translations($post->ID) as $translation) {
                 if (!current_user_can('edit_post', $translation->ID)) { continue; }
                 $locale = get_post_meta($translation->ID, '_portfolio_locale', true);
-                printf('<a class="button" href="%s">%s · %s</a> ', esc_url(add_query_arg('language', $locale, admin_url('admin.php?page=portfolio-projects&project=' . $post->ID))), esc_html(strtoupper($locale)), esc_html(get_post_status_object($translation->post_status)->label));
+                portfolio_admin_version_link($locale, $translation->post_status, add_query_arg('language', $locale, admin_url('admin.php?page=portfolio-projects&project=' . $post->ID)));
             }
             echo '</td></tr>';
         }

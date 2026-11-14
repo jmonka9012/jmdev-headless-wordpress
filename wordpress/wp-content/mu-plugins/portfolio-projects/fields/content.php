@@ -65,7 +65,7 @@ return [
                 ],
                 [
                     'key' => 'field_6a772204da831',
-                    'label' => 'Scramble Group - suffiksy',
+                    'label' => 'Scramble Group - suffixes',
                     'name' => 'scramble_group_suffixes',
                     'aria-label' => '',
                     'type' => 'text',
@@ -642,7 +642,7 @@ return [
         ],
         [
             'key' => 'field_6a8607b08c838',
-            'label' => 'Stopka',
+            'label' => 'Footer',
             'name' => 'stopka',
             'aria-label' => '',
             'type' => 'group',
