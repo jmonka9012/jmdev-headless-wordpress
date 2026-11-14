@@ -36,15 +36,16 @@ The old ACF record is kept as a fallback, with a notice identifying the PHP
 source. WordPress core, ACF installation, site setup and sample content are
 separate requirements; code registration alone does not install the whole site.
 
-Registration and legacy field-key contracts can be checked without WordPress:
+Registration and legacy field-key contracts can be checked without WordPress,
+from the backend repository root:
 
 ```sh
-php backend/wordpress/wp-content/mu-plugins/portfolio-projects/tests/acf-fields.php
+php wordpress/wp-content/mu-plugins/portfolio-projects/tests/acf-fields.php
 ```
 
 ## Editing
 
-Projects remain standard WordPress `post` entries. Use the native title, manual excerpt (Hero subtitle), and content (Overview). The new **Portfolio — szczegóły projektu** field group contains:
+Projects remain standard WordPress `post` entries. Use the native title, manual excerpt (Hero subtitle), and content (Overview). The structured project field group contains:
 
 - `project_gallery`: ordered rows of attachment `image` and optional plain-text `caption`.
 - `project_challenges`: ordered rows of `title`, `challenge`, `solution`, `effect`, optional `screenshots` (ordered rows of `image` and `caption`), `link_url` (HTTP/HTTPS) and `link_label`. Screenshot and link can appear together; a missing label uses the translated “View resource” button text. A label without a URL does not create a visible section.
@@ -70,18 +71,18 @@ Cards open the project detail routes in the same tab. The original external proj
 
 The next authorized WordPress admin visit imports existing `photo_1–3` into `project_gallery`, in order, reusing attachment IDs. The original archive thumbnail (normally `photo_1`) is also assigned as the native featured image. No physical media files are duplicated. Existing galleries, including deliberately empty galleries, and existing featured images are preserved. A per-project version marker prevents repeated imports. Missing attachment IDs/URLs abort that project's import without a partial gallery and allow a later retry.
 
-To import all projects explicitly and report unresolved media:
+To import legacy photos for all projects explicitly and report unresolved media,
+run from the backend repository root:
 
 ```sh
-cd backend
-ddev exec wp portfolio import-legacy-media
+ddev exec wp --path=/var/www/html/wordpress portfolio import-legacy-media
 ```
 
 Public REST/build requests do not run migration writes. Refresh the static data export after migration. Run migration commands only when deliberately migrating legacy records; they can update saved content.
 
 ## Legacy structured data contract
 
-Use the native post properties plus ACF names below. Image values for storage are **WordPress attachment IDs**, not file paths. Relationship IDs must refer to existing `technology` entries. Example of the schema-v1 fields; managed multilingual records use the schema-v2 model below:
+Use the native post properties plus ACF names below. Image values for storage are **WordPress attachment IDs**, not file paths. Relationship IDs must refer to existing `technology` entries. This documents stored field values, not an import format. Example of the schema-v1 fields; managed multilingual records use the schema-v2 model below:
 
 ```json
 {
@@ -117,10 +118,16 @@ The detail page uses existing Swiper (manual navigation, no autoplay), optimized
 
 ## Validation
 
+Run the isolated backend contracts from the backend repository root:
+
 ```sh
-php backend/wordpress/wp-content/mu-plugins/portfolio-projects/tests/contract.php
-php backend/wordpress/wp-content/mu-plugins/portfolio-projects/tests/legacy-media.php
-cd frontend
+php tools/run-tests.php
+```
+
+With the sibling frontend repository available, check its content sanitizer:
+
+```sh
+cd ../frontend
 node --test tests/projectContent.test.js
 ```
 
@@ -133,8 +140,8 @@ Challenge screenshots use the same ordered image rows as the Hero gallery. Exist
 
 `multilingual.php` and `language-admin.php` preserve native `post` records and IDs while exposing one project editor. The root owns `_portfolio_shared` (technologies, project URL/order, gallery/Challenge IDs and media). Each translation owns native title/excerpt/content and `_portfolio_local` (SEO, outcome, Challenge copy and per-usage image alts/captions). `_portfolio_root_id`, `_portfolio_project_key`, `_portfolio_locale` and `_portfolio_public_slug` provide identity and routing. The central `portfolio_languages` option supports registering another language once and selecting it when creating a draft translation. New translated UI copy still needs to be supplied; the current frontend UI is PL/EN.
 
-The Portfolio menu contains one row per logical project. Language buttons switch all localized fields, including nested image alts and Challenges. Shared media are edited once. Existing custom `portfolio_rows` controls remain. Save checks nonce, permissions for every translation, concurrent changes and media/URL validity before a transactional update. New translations begin as drafts. The old editing surface redirects only when `portfolio_language_ui_enabled` is enabled by passing post-import verification. Historical ACF and category data remain stored but do not control managed project languages. Managed Home pages likewise expose their registered locale through the REST adapter.
+The Portfolio menu contains one row per logical project. Language buttons switch all localized fields, including nested image alts and Challenges. Shared media are edited once. Existing custom `portfolio_rows` controls remain. Save checks nonce, permissions for every translation, concurrent changes and media/URL validity before a transactional update. New translations begin as drafts. The old editing surface redirects only when the `portfolio_language_ui_enabled` option is enabled. Historical ACF and category data remain stored but do not control managed project languages. Managed Home pages likewise expose their registered locale through the REST adapter.
 
 REST retains `/wp/v2/posts`, native IDs/slugs and compatible `acf.lang/link/order/project_*` fields. The v2 `portfolio` object adds locale, stable project/Challenge IDs, SEO, public_slug and published translation paths. A single image remains a single image on the frontend; multiple images use Swiper. Empty managed galleries are authoritative; historical photo fields cannot restore cleared images. Global attachment alts remain unchanged.
 
-Local checks and the optional private-dataset importer are documented in [tools/README.md](../../../../tools/README.md). Nothing here deploys to production. Existing schema-v1 records remain supported until explicitly migrated.
+Repeatable local checks are documented in [tools/README.md](../../../../tools/README.md). The completed bulk content importer is no longer part of the maintained tools. The separate legacy-photo compatibility described above remains available. Nothing here deploys to production. Existing schema-v1 records remain supported until explicitly migrated.
