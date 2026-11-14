@@ -1,4 +1,4 @@
-# Portfolio project schema — v1
+# Portfolio Projects MU-plugin
 
 The `portfolio-projects.php` MU plugin loads automatically with WordPress. It requires the existing ACF plugin; no activation is needed. The legacy media import runs on authorized admin requests, in batches of 50 projects. Definitions are versioned in PHP, independent of the theme.
 
@@ -77,11 +77,11 @@ cd backend
 ddev exec wp portfolio import-legacy-media
 ```
 
-Public REST/build requests do not run migration writes. Refresh the static data export after migration. This environment cannot execute the database import because Docker is unavailable.
+Public REST/build requests do not run migration writes. Refresh the static data export after migration. Run migration commands only when deliberately migrating legacy records; they can update saved content.
 
-## Structured data contract (future input, no importer)
+## Legacy structured data contract
 
-Use the native post properties plus ACF names below. Image values for storage are **WordPress attachment IDs**, not file paths. Relationship IDs must refer to existing `technology` entries. Example only; this stage adds no importer or content generation:
+Use the native post properties plus ACF names below. Image values for storage are **WordPress attachment IDs**, not file paths. Relationship IDs must refer to existing `technology` entries. Example of the schema-v1 fields; managed multilingual records use the schema-v2 model below:
 
 ```json
 {
@@ -124,7 +124,7 @@ cd frontend
 node --test tests/projectContent.test.js
 ```
 
-The isolated PHP contracts use WP/ACF test doubles; they do not replace a live editor test. Verify adding two WYSIWYG rows, editing, reordering, saving, reloading, and removing the final row in WordPress when DDEV is available. This environment cannot access Docker or resolve `backend.ddev.site`, so the live admin/save/REST round trip remains to be checked there.
+The isolated PHP contracts use WP/ACF test doubles; they do not replace a live editor test. For live editor validation, add two WYSIWYG rows, edit, reorder, save, reload, and remove the final row in WordPress. Isolated contracts do not establish that the admin/save/REST round trip works.
 
 Challenge screenshots use the same ordered image rows as the Hero gallery. Existing `screenshot` values are read as one row until the next save, which stores `screenshots`. An explicitly empty collection clears the old screenshot. The detail renders one image without Swiper, and multiple images in a manual Swiper.
 
@@ -137,4 +137,4 @@ The Portfolio menu contains one row per logical project. Language buttons switch
 
 REST retains `/wp/v2/posts`, native IDs/slugs and compatible `acf.lang/link/order/project_*` fields. The v2 `portfolio` object adds locale, stable project/Challenge IDs, SEO, public_slug and published translation paths. A single image remains a single image on the frontend; multiple images use Swiper. Empty managed galleries are authoritative; historical photo fields cannot restore cleared images. Global attachment alts remain unchanged.
 
-The import tooling and recovery instructions live in `backend/tools/README.md`. Nothing here deploys to production. Existing schema-v1 records remain supported until explicitly migrated.
+Local checks and the optional private-dataset importer are documented in [tools/README.md](../../../../tools/README.md). Nothing here deploys to production. Existing schema-v1 records remain supported until explicitly migrated.

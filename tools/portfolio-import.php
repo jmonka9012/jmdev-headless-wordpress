@@ -52,4 +52,3 @@ if ($mode === 'apply') {
         WP_CLI::success('Import and data/API verification passed. Unified editor enabled. Report: ' . $output);
     } catch (Throwable $error) { WP_CLI::error('Import stopped: ' . $error->getMessage() . '. See journal.json; do not blindly retry.'); }
 } else { WP_CLI::success('Dry-run ready. No data changed. Report: ' . $output); }
-

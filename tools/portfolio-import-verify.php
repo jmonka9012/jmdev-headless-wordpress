@@ -1,5 +1,5 @@
 <?php
-/** Real data/API assertions, called after import. Never invents a passing browser test. */
+/** Verify imported content, media and REST responses. */
 function portfolio_import_verify($package, $journal, $output) {
     $errors = [];
     $check = static function ($valid, $message) use (&$errors) { if (!$valid) { $errors[] = $message; } };
