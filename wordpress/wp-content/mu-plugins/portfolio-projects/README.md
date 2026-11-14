@@ -67,7 +67,7 @@ With `portfolio_language_ui_enabled` enabled, the native Posts menu is hidden.
 Native post lists redirect to Portfolio; Add Post redirects to Add project; native
 post editing redirects to the managed editor or the Portfolio list for unmanaged
 entries. Unmanaged legacy drafts remain stored without being converted or deleted.
-Technologies retain their native editor until its replacement is implemented.
+Technologies use the same shared admin layout, image control and ACF field adapter.
 The compatibility option leaves native navigation available
 for installations that have not enabled the managed editing surface.
 
@@ -246,3 +246,12 @@ The Portfolio menu contains one row per logical project. Language buttons switch
 REST retains `/wp/v2/posts`, native IDs/slugs and compatible `acf.lang/link/order/project_*` fields. The v2 `portfolio` object adds locale, stable project/Challenge IDs, SEO, public_slug and published translation paths. A single image remains a single image on the frontend; multiple images use Swiper. Empty managed galleries are authoritative; historical photo fields cannot restore cleared images. Global attachment alts remain unchanged.
 
 Repeatable local checks are documented in [tools/README.md](../../../../tools/README.md). The completed bulk content importer is no longer part of the maintained tools. The separate legacy-photo compatibility described above remains available. Nothing here deploys to production. Existing schema-v1 records remain supported until explicitly migrated.
+
+## Technology editor
+
+**Technologies** provides a shared list and editor with title, content, icon,
+category and publication status. There are no language tabs. New entries start
+as drafts; repeat submissions reuse their creation key. Existing IDs, relations
+and order values are preserved. Use **Order** to reorder technologies. Native
+list/new/edit routes redirect to this interface when managed editing is enabled.
+Saves use nonce/capability checks, stale tokens, locks and transactions.

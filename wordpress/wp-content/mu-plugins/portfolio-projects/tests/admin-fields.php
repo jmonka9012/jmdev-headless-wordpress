@@ -1,7 +1,7 @@
 <?php
 define('ABSPATH', __DIR__);
 function add_action(...$args) {}
-function current_user_can(...$args) { return true; }
+function current_user_can(...$args) { return $GLOBALS['can_edit'] ?? true; }
 function wp_attachment_is_image($id) { return $id === 10; }
 function acf_reset_validation_errors() {}
 function acf_get_validation_errors() { return []; }
@@ -36,4 +36,8 @@ $GLOBALS['meta']=[1=>['_portfolio_page_root_id'=>1,'_portfolio_page_key'=>'page-
 check(portfolio_page_root(2)===1 && portfolio_page_root(3)===3,'Page identity requires a matching explicit key.');
 check(count(portfolio_page_versions(1))===2,'Unrelated pages do not enter a translation group.');
 check(portfolio_page_versions(999)===[],'Unknown pages do not produce invalid editor records.');
+require dirname(__DIR__) . '/technology-admin.php';
+rejects(fn()=>portfolio_technology_save(1, '', [], []));
+$GLOBALS['can_edit']=false; rejects(fn()=>portfolio_technology_save(0, '', [], []));
+$GLOBALS['can_edit']=true;
 echo "ACF field persistence and explicit page-language identity contracts passed.\n";
