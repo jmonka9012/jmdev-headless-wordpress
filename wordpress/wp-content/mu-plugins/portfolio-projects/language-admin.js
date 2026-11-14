@@ -2,7 +2,7 @@
   let language;
   const select = (locale) => {
     language = locale;
-    $('.portfolio-editor [class*="portfolio-locale-"]').each(function () {
+    $('.portfolio-admin [class*="portfolio-locale-"]').each(function () {
       this.hidden = !this.classList.contains(`portfolio-locale-${locale}`);
     });
     $('[data-portfolio-language]').each(function () {
@@ -10,6 +10,11 @@
     });
   };
   $(document).on('click', '[data-portfolio-language]', function () { select(this.dataset.portfolioLanguage); });
-  $(function () { const first = document.querySelector('[data-portfolio-language]'); if (first) select(first.dataset.portfolioLanguage); });
+  $(function () {
+    const buttons = [...document.querySelectorAll('[data-portfolio-language]')];
+    const requested = new URLSearchParams(window.location.search).get('language');
+    const active = buttons.find(button => button.dataset.portfolioLanguage === requested) || buttons[0];
+    if (active) select(active.dataset.portfolioLanguage);
+  });
   acf.addAction('append', () => { if (language) select(language); });
 })(jQuery);

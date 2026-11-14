@@ -1,8 +1,12 @@
 <?php
 if (!defined('ABSPATH')) { exit; }
 
+function portfolio_project_types() {
+    return ['commercial' => 'Commercial', 'personal' => 'Personal'];
+}
+
 function portfolio_project_type($value) {
-    return in_array($value, ['commercial', 'personal'], true) ? $value : '';
+    return is_string($value) && isset(portfolio_project_types()[$value]) ? $value : '';
 }
 
 /** Stable row names also define the future structured-data contract. */
@@ -72,7 +76,7 @@ function portfolio_register_project_fields() {
         [
             'key' => 'field_portfolio_project_type', 'name' => 'project_type',
             'label' => 'Project type', 'type' => 'select', 'required' => 1,
-            'choices' => ['commercial' => 'Commercial', 'personal' => 'Personal'],
+            'choices' => portfolio_project_types(),
             'allow_null' => 1, 'return_format' => 'value',
         ],
         [

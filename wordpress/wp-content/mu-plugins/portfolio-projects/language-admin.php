@@ -7,7 +7,7 @@ function portfolio_store_meta($id, $key, $value) {
     if (is_scalar($value) ? (string) $actual !== (string) $value : $actual !== $value) { throw new RuntimeException('Could not save field ' . $key); }
 }
 function portfolio_editor_token($root) {
-    $state = [get_post_meta($root, '_portfolio_shared', true)];
+    $state = [get_post_meta($root, '_portfolio_shared', true), 'featured_image' => get_post_thumbnail_id($root)];
     foreach (portfolio_project_translations($root) as $post) {
         $state[$post->ID] = [$post->post_title, $post->post_excerpt, $post->post_content, $post->post_status, get_post_meta($post->ID, '_portfolio_local', true)];
     }
@@ -60,6 +60,7 @@ function portfolio_editor_rows($root, $kind) {
 }
 function portfolio_editor_render_rows($root, $kind) {
     $field = acf_validate_field(['key' => 'field_portfolio_editor_' . $kind, 'name' => 'portfolio[' . $kind . ']', '_name' => $kind === 'gallery' ? 'project_gallery' : 'project_challenges', 'label' => $kind === 'gallery' ? 'Hero gallery' : 'Challenges and solutions', 'type' => 'portfolio_rows', 'sub_fields' => portfolio_editor_fields($kind === 'gallery' ? 'image' : 'challenge'), 'value' => portfolio_editor_rows($root, $kind)]);
+    $field['_portfolio_row_kind'] = $kind === 'gallery' ? 'image' : 'challenge';
     $field['_prepare'] = true; $field['_valid'] = 1;
     acf_render_field_wrap($field);
 }
@@ -69,20 +70,27 @@ add_action('admin_menu', function () {
 add_action('admin_enqueue_scripts', function ($hook) {
     if ($hook !== 'toplevel_page_portfolio-projects') { return; }
     acf_enqueue_scripts(); wp_enqueue_media(); wp_enqueue_editor();
-    wp_enqueue_script('portfolio-language-editor', plugins_url('language-admin.js', __FILE__), ['acf-input'], '2.0.0', true);
-    wp_enqueue_style('portfolio-language-editor', plugins_url('language-admin.css', __FILE__), [], '2.0.0');
+    wp_enqueue_script('portfolio-language-editor', plugins_url('language-admin.js', __FILE__), ['acf-input'], (string) filemtime(__DIR__ . '/language-admin.js'), true);
+    wp_enqueue_style('portfolio-language-editor', plugins_url('language-admin.css', __FILE__), [], (string) filemtime(__DIR__ . '/language-admin.css'));
 });
 function portfolio_editor_page() {
     if (!current_user_can('edit_posts')) { wp_die('You do not have permission to perform this action.'); }
     $root = absint($_GET['project'] ?? 0);
-    echo '<div class="wrap portfolio-editor"><h1>Portfolio — projects</h1>';
+    echo '<div class="wrap portfolio-admin portfolio-editor">';
+    if (($_GET['view'] ?? '') === 'new') { portfolio_project_create_page(); echo '</div>'; return; }
+    portfolio_admin_header('Portfolio — projects', ['Add project' => portfolio_project_new_url()]);
     if (!$root) {
         echo '<table class="widefat"><thead><tr><th>Project</th><th>Languages</th></tr></thead><tbody>';
         $posts = get_posts(['post_type' => 'post', 'post_status' => ['publish', 'draft', 'private', 'pending'], 'numberposts' => -1, 'meta_key' => '_portfolio_shared', 'orderby' => 'title', 'order' => 'ASC']);
         foreach ($posts as $post) {
-            if (!current_user_can('edit_post', $post->ID)) { continue; }
-            $labels = array_map(static fn($translation) => strtoupper(get_post_meta($translation->ID, '_portfolio_locale', true)), portfolio_project_translations($post->ID));
-            printf('<tr><td><a href="%s">%s</a></td><td>%s</td></tr>', esc_url(admin_url('admin.php?page=portfolio-projects&project=' . $post->ID)), esc_html($post->post_title), esc_html(implode(' / ', $labels)));
+            if (portfolio_project_root($post->ID) !== $post->ID || !current_user_can('edit_post', $post->ID)) { continue; }
+            printf('<tr><td><a href="%s">%s</a></td><td class="portfolio-admin-languages">', esc_url(admin_url('admin.php?page=portfolio-projects&project=' . $post->ID)), esc_html($post->post_title));
+            foreach (portfolio_project_translations($post->ID) as $translation) {
+                if (!current_user_can('edit_post', $translation->ID)) { continue; }
+                $locale = get_post_meta($translation->ID, '_portfolio_locale', true);
+                printf('<a class="button" href="%s">%s · %s</a> ', esc_url(add_query_arg('language', $locale, admin_url('admin.php?page=portfolio-projects&project=' . $post->ID))), esc_html(strtoupper($locale)), esc_html(get_post_status_object($translation->post_status)->label));
+            }
+            echo '</td></tr>';
         }
         echo '</tbody></table>';
         if (current_user_can('manage_options')) {
@@ -101,14 +109,12 @@ function portfolio_editor_page() {
     echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
     wp_nonce_field('portfolio_save_' . $root);
     printf('<input type="hidden" name="action" value="portfolio_save"><input type="hidden" name="root" value="%d"><input type="hidden" name="token" value="%s">', $root, esc_attr(portfolio_editor_token($root)));
-    echo '<div class="portfolio-language-tabs" role="group" aria-label="Editing language">';
-    foreach (portfolio_languages() as $locale => $label) { printf('<button type="button" class="button" data-portfolio-language="%s" aria-pressed="false">%s</button> ', esc_attr($locale), esc_html($label)); }
-    echo '</div><h2>Shared data</h2>';
-    echo '<p><label>Project type <select name="portfolio[project_type]" required><option value="">Choose a type</option>';
-    foreach (['commercial' => 'Commercial', 'personal' => 'Personal'] as $value => $label) {
-        printf('<option value="%s" %s>%s</option>', esc_attr($value), selected($shared['project_type'] ?? '', $value, false), esc_html($label));
-    }
-    echo '</select></label></p>';
+    $available_locales = array_map(static fn($post) => get_post_meta($post->ID, '_portfolio_locale', true), $translations);
+    portfolio_admin_language_tabs(array_intersect_key(portfolio_languages(), array_flip($available_locales)));
+    echo '<h2>Shared data</h2>';
+    portfolio_admin_project_type($shared['project_type'] ?? '');
+    echo '<div class="acf-fields">'; portfolio_admin_image('featured_image', 'Project thumbnail', get_post_thumbnail_id($root)); echo '</div>';
+    echo '<p class="description">Used on project cards. The Hero gallery is configured below.</p>';
     printf('<p><label>Project URL <input class="regular-text" type="url" name="portfolio[project_url]" value="%s"></label></p><p>Set the order in <a href="%s">Portfolio → Order</a>.</p>', esc_attr($shared['project_url']), esc_url(portfolio_order_url('projects')));
     echo '<p><strong>Technologies</strong></p><div class="portfolio-technology-options">';
     foreach (get_posts(['post_type' => 'technology', 'numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC']) as $technology) {
@@ -166,6 +172,7 @@ add_action('admin_post_portfolio_save', function () {
         $shared = ['project_url' => portfolio_project_link($raw['project_url'] ?? ''), 'order' => (int) ($current_shared['order'] ?? 0), 'technology_ids' => [], 'gallery' => [], 'challenges' => []];
         $shared['project_type'] = $project_type;
         if (($raw['project_url'] ?? '') !== '' && !$shared['project_url']) { throw new RuntimeException('Invalid project URL.'); }
+        $featured_image = array_key_exists('featured_image', $raw) ? portfolio_admin_image_id($raw['featured_image']) : (int) get_post_thumbnail_id($root);
         foreach ((array) ($raw['technology_ids'] ?? []) as $id) {
             $id = absint($id); if (get_post_type($id) !== 'technology' || get_post_status($id) !== 'publish') { throw new RuntimeException('Invalid technology.'); }
             $shared['technology_ids'][] = $id;
@@ -209,28 +216,15 @@ add_action('admin_post_portfolio_save', function () {
             portfolio_store_meta($post->ID, '_portfolio_local', $locals[$locale]);
         }
         portfolio_store_meta($root, '_portfolio_shared', $shared);
+        if ($featured_image) { set_post_thumbnail($root, $featured_image); }
+        else { delete_post_thumbnail($root); }
+        if ((int) get_post_thumbnail_id($root) !== $featured_image) { throw new RuntimeException('Could not save the project thumbnail.'); }
         if ($wpdb->query('COMMIT') === false) { throw new RuntimeException('Could not commit the changes.'); }
     } catch (Throwable $error) {
         $wpdb->query('ROLLBACK'); foreach ($posts as $post) { clean_post_cache($post->ID); }
         wp_die(esc_html($error->getMessage()));
     } finally { $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $lock)); }
     wp_safe_redirect(admin_url('admin.php?page=portfolio-projects&project=' . $root . '&saved=1')); exit;
-});
-
-// Switch the old editing surface off only after the post-import verification enables it.
-add_action('load-post.php', function () {
-    if (!get_option('portfolio_language_ui_enabled')) { return; }
-    $id = absint($_GET['post'] ?? 0); $root = portfolio_project_root($id);
-    if ($root && ($_GET['action'] ?? '') === 'edit' && current_user_can('edit_post', $id)) { wp_safe_redirect(admin_url('admin.php?page=portfolio-projects&project=' . $root)); exit; }
-});
-add_action('pre_get_posts', function ($query) {
-    if (!is_admin() || !$query->is_main_query() || !get_option('portfolio_language_ui_enabled')) { return; }
-    global $pagenow;
-    if ($pagenow === 'edit.php' && ($query->get('post_type') ?: 'post') === 'post') {
-        $meta = $query->get('meta_query') ?: [];
-        $meta[] = ['relation' => 'OR', ['key' => '_portfolio_root_id', 'compare' => 'NOT EXISTS'], ['key' => '_portfolio_locale', 'value' => 'pl']];
-        $query->set('meta_query', $meta);
-    }
 });
 
 add_filter('acf/prepare_field', function ($field) {
@@ -269,7 +263,7 @@ add_action('admin_post_portfolio_add_translation', function () {
         portfolio_store_meta($id, '_portfolio_project_key', get_post_meta($root, '_portfolio_project_key', true));
         portfolio_store_meta($id, '_portfolio_locale', $locale);
         portfolio_store_meta($id, '_portfolio_public_slug', get_post_meta($root, '_portfolio_public_slug', true));
-        portfolio_store_meta($id, '_portfolio_local', ['images' => [], 'challenges' => [], 'seo' => [], 'outcome' => '']);
+        portfolio_store_meta($id, '_portfolio_local', portfolio_project_local_defaults());
         $wpdb->query('COMMIT');
     } catch (Throwable $error) { $wpdb->query('ROLLBACK'); wp_die(esc_html($error->getMessage())); }
     finally { $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $lock)); }

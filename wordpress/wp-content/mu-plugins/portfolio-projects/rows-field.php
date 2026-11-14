@@ -1,6 +1,10 @@
 <?php
 if (!defined('ABSPATH')) { exit; }
 
+function portfolio_project_rows_are_images($field) {
+    return ($field['_portfolio_row_kind'] ?? '') === 'image' || in_array($field['_name'] ?? '', ['project_gallery', 'screenshots'], true);
+}
+
 /** ACF Free extension, scoped to the two project collections; not the PRO Repeater. */
 class Portfolio_Project_Rows extends acf_field {
     public function initialize() {
@@ -19,7 +23,7 @@ class Portfolio_Project_Rows extends acf_field {
 
     public function render_field($field) {
         $rows = is_array($field['value']) ? $field['value'] : [];
-        $gallery = in_array($field['_name'] ?? '', ['project_gallery', 'screenshots'], true);
+        $gallery = portfolio_project_rows_are_images($field);
         $token = '__PORTFOLIO_ROW_' . ($field['_portfolio_depth'] ?? 0) . '__';
         printf('<div class="portfolio-rows" data-row-token="%s" data-row-label="%s">', esc_attr($token), esc_attr($gallery ? 'Image' : 'Challenge'));
         echo '<div class="portfolio-rows__toolbar"><span class="portfolio-rows__count" aria-live="polite"></span><div>';
@@ -34,7 +38,7 @@ class Portfolio_Project_Rows extends acf_field {
     }
 
     private function render_row($field, $row, $index) {
-        $gallery = in_array($field['_name'] ?? '', ['project_gallery', 'screenshots'], true);
+        $gallery = portfolio_project_rows_are_images($field);
         $body_id = acf_idify($field['name'] . '_' . $index . '_body');
         $title = $gallery ? ($row['caption'] ?? '') : ($row['title'] ?? '');
         $expanded = $index === 'row_0' || str_starts_with((string) $index, '__PORTFOLIO_ROW_');

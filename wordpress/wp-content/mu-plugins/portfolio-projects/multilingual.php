@@ -4,6 +4,9 @@ if (!defined('ABSPATH')) { exit; }
 function portfolio_languages() {
     return get_option('portfolio_languages', ['pl' => 'Polish', 'en' => 'English']);
 }
+function portfolio_project_local_defaults() {
+    return ['images' => [], 'challenges' => [], 'seo' => [], 'outcome' => ''];
+}
 function portfolio_project_root($id) {
     $root = (int) get_post_meta($id, '_portfolio_root_id', true);
     return $root && get_post_meta($root, '_portfolio_project_key', true) === get_post_meta($id, '_portfolio_project_key', true) ? $root : 0;

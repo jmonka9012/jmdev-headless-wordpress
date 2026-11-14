@@ -49,6 +49,34 @@ Custom admin labels, instructions and validation messages are in English.
 Project content remains localized; language names configured in WordPress are
 preserved. Native WordPress and external plugin controls follow their own locale.
 
+**Portfolio → Add project** creates a managed draft in the selected language,
+then opens the existing multilingual editor. The initial form requires a title
+and project type. Add further translations from that editor. Creation checks
+permissions and a nonce, reserves a public slug and initializes the shared/local
+metadata inside a transaction. A per-form identity prevents repeated submissions
+from creating duplicate projects. New projects are appended to the project order.
+
+The list shows one project with links to its language versions and their native
+publication statuses. Language links open the corresponding editor tab directly.
+The **Project thumbnail** image control edits the root's native featured image,
+independently of the Hero gallery. Both the thumbnail and shared/local fields
+participate in stale-form detection and transactional saves. Invalid images are
+rejected; clearing the image removes the thumbnail.
+
+With `portfolio_language_ui_enabled` enabled, the native Posts menu is hidden.
+Native post lists redirect to Portfolio; Add Post redirects to Add project; native
+post editing redirects to the managed editor or the Portfolio list for unmanaged
+entries. Unmanaged legacy drafts remain stored without being converted or deleted.
+Native Pages and Technologies remain available until their replacement editors
+are implemented. The compatibility option leaves native navigation available
+for installations that have not enabled the managed editing surface.
+
+`admin-ui.php` supplies the shared header, language buttons, image input and
+project-type control. Common editor styles and language-tab behavior are defined
+once in `language-admin.css` and `language-admin.js`. Managed image collections
+carry an explicit row-kind marker, so ACF's normalized form names do not change
+gallery controls into Challenge controls.
+
 Projects remain standard WordPress `post` entries. Use the native title, manual excerpt (Hero subtitle), and content (Overview). The structured project field group contains:
 
 - `project_gallery`: ordered rows of attachment `image` and optional plain-text `caption`.

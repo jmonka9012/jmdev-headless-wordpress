@@ -25,6 +25,8 @@ require dirname(__DIR__) . '/schema.php';
 require dirname(__DIR__) . '/rows-field.php';
 
 $field = new Portfolio_Project_Rows();
+check(portfolio_project_rows_are_images(['_name' => 'portfolio[gallery]', '_portfolio_row_kind' => 'image']), 'Managed galleries retain image controls after ACF normalizes field names.');
+check(!portfolio_project_rows_are_images(['_name' => 'portfolio[challenges]', '_portfolio_row_kind' => 'challenge']), 'Challenge collections retain their own controls.');
 $gallery = ['sub_fields' => portfolio_project_row_fields('project_gallery')];
 $challenges = ['sub_fields' => portfolio_project_row_fields('project_challenges')];
 check($field->update_value('', 1, $gallery) === [], 'Last row can be removed.');

@@ -1,6 +1,9 @@
-.portfolio-editor { max-width: 1250px; }
+.portfolio-admin { max-width: 1250px; }
+.portfolio-admin-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+.portfolio-admin-header h1 { margin: 0; }
+.portfolio-admin-languages .button { margin: 3px 4px 3px 0; }
 .portfolio-language-tabs { position: sticky; top: 32px; z-index: 20; padding: 14px; background: #fff; border-bottom: 1px solid #ccc; }
 .portfolio-language-tabs [aria-pressed="true"] { background: #2271b1; color: #fff; }
-.portfolio-editor [hidden] { display: none !important; }
-.portfolio-editor section { padding: 20px; background: #fff; margin: 20px 0; }
+.portfolio-admin [hidden] { display: none !important; }
+.portfolio-admin section { padding: 20px; background: #fff; margin: 20px 0; }
 .portfolio-technology-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 25px; }
