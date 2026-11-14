@@ -159,6 +159,17 @@ Run the isolated backend contracts from the backend repository root:
 php tools/run-tests.php
 ```
 
+Check the loaded configuration and anonymous public REST responses in DDEV:
+
+```sh
+ddev exec wp --path=/var/www/html/wordpress eval-file /var/www/html/tools/check.php
+```
+
+The command checks all public collection pages and returns a nonzero exit code
+on a configuration or response-contract failure. It does not modify content.
+Empty collections cannot exercise record response shapes. See
+[tools/README.md](../../../../tools/README.md) for the exact scope and limits.
+
 With the sibling frontend repository available, check its content sanitizer:
 
 ```sh

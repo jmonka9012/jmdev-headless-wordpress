@@ -30,8 +30,15 @@ For a read-only summary of the running local WordPress installation:
 ddev exec wp --path=/var/www/html/wordpress eval-file /var/www/html/tools/inspect.php
 ```
 
-The tools provide repeatable tests and a read-only configuration summary.
-They do not import content or deploy the site.
+For pass/fail configuration and public REST contract checks:
+
+```sh
+ddev exec wp --path=/var/www/html/wordpress eval-file /var/www/html/tools/check.php
+```
+
+The tools provide repeatable tests, a read-only summary and runtime validation.
+They do not import content or deploy the site. See the tools documentation for
+coverage, requirements and limitations.
 
 ## Documentation
 
