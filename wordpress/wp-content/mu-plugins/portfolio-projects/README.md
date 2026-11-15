@@ -251,7 +251,9 @@ Repeatable local checks are documented in [tools/README.md](../../../../tools/RE
 
 **Technologies** provides a shared list and editor with title, content, icon,
 category and publication status. There are no language tabs. New entries start
-as drafts; repeat submissions reuse their creation key. Existing IDs, relations
+as drafts. The list supports a category filter, including **All categories**
+and **Other** for missing or unknown assignments. The selection is kept in the URL.
+Repeat submissions reuse their creation key. Existing IDs, relations
 and order values are preserved. Use **Order** to reorder technologies. Native
 list/new/edit routes redirect to this interface when managed editing is enabled.
 Saves use nonce/capability checks, stale tokens, locks and transactions.

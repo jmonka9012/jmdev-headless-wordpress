@@ -59,12 +59,26 @@ function portfolio_technologies_page(){
     echo '<div class="wrap portfolio-admin">';
     portfolio_admin_header($new?'Add technology':'Technologies',['Add technology'=>add_query_arg('view','new',portfolio_technology_url()),'Order'=>portfolio_order_url('technologies','frontend')]);
     if(!$id&&!$new){
+        $categories = portfolio_technology_category_definitions();
+        $choices = ['' => 'All categories'] + $categories + ['uncategorized' => 'Other'];
+        $filter = is_string($_GET['category'] ?? null) ? wp_unslash($_GET['category']) : '';
+        if (!array_key_exists($filter, $choices)) { $filter = ''; }
+        echo '<form method="get" action="' . esc_url(admin_url('admin.php')) . '"><input type="hidden" name="page" value="portfolio-technologies"><p><label>Category <select name="category">';
+        foreach ($choices as $key => $label) {
+            printf('<option value="%s" %s>%s</option>', esc_attr($key), selected($filter, $key, false), esc_html($label));
+        }
+        echo '</select></label> <button class="button" type="submit">Filter</button></p></form>';
         echo '<table class="widefat striped"><thead><tr><th>Technology</th><th>Category</th><th>Status</th></tr></thead><tbody>';
+        $visible = 0;
         foreach(get_posts(['post_type'=>'technology','post_status'=>['publish','draft','private','pending','future'],'numberposts'=>-1,'orderby'=>'title','order'=>'ASC'])as$post){
             if(!current_user_can('edit_post',$post->ID))continue;
             $category=get_post_meta($post->ID,'technology_category',true);
-            printf('<tr><td><a href="%s">%s</a></td><td>%s</td><td>%s</td></tr>',esc_url(portfolio_technology_url($post->ID)),esc_html($post->post_title),esc_html(portfolio_technology_category_definitions()[$category]??'Other'),esc_html(get_post_status_object($post->post_status)->label));
+            if (!is_string($category) || !isset($categories[$category])) { $category = 'uncategorized'; }
+            if ($filter !== '' && $filter !== $category) { continue; }
+            printf('<tr><td><a href="%s">%s</a></td><td>%s</td><td>%s</td></tr>',esc_url(portfolio_technology_url($post->ID)),esc_html($post->post_title),esc_html($choices[$category]),esc_html(get_post_status_object($post->post_status)->label));
+            $visible++;
         }
+        if (!$visible) { echo '<tr><td colspan="3">No technologies found.</td></tr>'; }
         echo '</tbody></table></div>';return;
     }
     $post=$id?get_post($id):null;
