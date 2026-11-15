@@ -120,7 +120,7 @@ Use **Portfolio → Order** to reorder projects and technologies. Projects share
 one order across translations; technologies are ordered within their category.
 Drag rows or use the move buttons, then click **Save order**. **Discard unsaved
 changes** restores the order from page load. Category choices in the admin use
-English labels independently of the localized labels exposed to the frontend.
+the saved English labels with the same defaults as the API.
 
 ## Technology category labels
 
@@ -128,7 +128,7 @@ English labels independently of the localized labels exposed to the frontend.
 defaults in PHP. Technology entries store only the selected `technology_category`
 identifier; changing a label does not reassign technologies or change their order.
 
-Administrators can edit public labels in **Portfolio → Category labels**. Values
+Administrators can edit category labels in **Portfolio → Category labels**. Values
 are stored in the `portfolio_category_labels` WordPress option as
 `{category_key: {locale: label}}`. The screen includes PL/EN and any additional
 languages registered for the portfolio. Definitions remain in code; translated
@@ -142,8 +142,10 @@ invalid English label uses the PHP default. A clean installation therefore works
 with English labels without a content import.
 
 REST retains `portfolio_category: {key, labels, order}`. Both the frontend and
-the API consume the same saved labels; admin category choices remain the stable
-English definitions. Existing installations should copy their current localized
+the API consume the same saved labels. The technology list, category filter,
+editor, ordering screen and label settings use the configured English labels,
+falling back to the PHP defaults. Category identifiers remain stable.
+Existing installations should copy their current localized
 labels into the option before replacing old source-defined labels. Refresh the
 frontend data export and rebuild the static site after editing labels.
 

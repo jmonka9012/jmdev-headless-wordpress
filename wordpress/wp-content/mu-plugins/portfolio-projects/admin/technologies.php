@@ -59,7 +59,7 @@ function portfolio_technologies_page(){
     echo '<div class="wrap portfolio-admin">';
     portfolio_admin_header($new?'Add technology':'Technologies',['Add technology'=>add_query_arg('view','new',portfolio_technology_url()),'Order'=>portfolio_order_url('technologies','frontend')]);
     if(!$id&&!$new){
-        $categories = portfolio_technology_category_definitions();
+        $categories = portfolio_technology_category_choices();
         $choices = ['' => 'All categories'] + $categories + ['uncategorized' => 'Other'];
         $filter = is_string($_GET['category'] ?? null) ? wp_unslash($_GET['category']) : '';
         if (!array_key_exists($filter, $choices)) { $filter = ''; }

@@ -39,13 +39,17 @@ function portfolio_technology_category($id) {
     return ['key' => $key, 'labels' => $categories[$key], 'order' => array_search($key, array_keys($categories), true)];
 }
 
+function portfolio_technology_category_choices() {
+    return array_map(static fn($labels) => $labels['en'], portfolio_technology_categories());
+}
+
 add_action('acf/init', function () {
     acf_add_local_field_group([
         'key' => 'group_portfolio_technology_category', 'title' => 'Portfolio — technology category',
         'fields' => [[
             'key' => 'field_portfolio_technology_category', 'name' => 'technology_category',
             'label' => 'Category', 'type' => 'select', 'required' => 1, 'allow_null' => 1,
-            'choices' => portfolio_technology_category_definitions(),
+            'choices' => portfolio_technology_category_choices(),
             'return_format' => 'value',
         ]],
         'location' => [[['param' => 'post_type', 'operator' => '==', 'value' => 'technology']]],

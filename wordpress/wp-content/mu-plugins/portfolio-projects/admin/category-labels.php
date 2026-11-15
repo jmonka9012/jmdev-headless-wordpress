@@ -31,7 +31,7 @@ function portfolio_category_labels_page() {
     $stored = get_option('portfolio_category_labels', []);
     echo '<div class="wrap"><h1>Technology category labels</h1>';
     settings_errors();
-    echo '<p>These labels appear on the frontend. Category keys, order and admin choices are defined in PHP.</p>';
+    echo '<p>These labels appear on the frontend. Admin category choices use the saved English labels. Category keys and order are defined in PHP.</p>';
     echo '<p>Leave a label empty to use the English label. If the English label is empty, the default from PHP is used. Refresh the exported data and rebuild the frontend after saving.</p>';
     echo '<form method="post" action="' . esc_url(admin_url('options.php')) . '">';
     settings_fields('portfolio_category_labels');
@@ -40,7 +40,7 @@ function portfolio_category_labels_page() {
         printf('<th scope="col">%s (%s)</th>', esc_html($language), esc_html($locale));
     }
     echo '</tr></thead><tbody>';
-    foreach (portfolio_technology_category_definitions() as $key => $default) {
+    foreach (portfolio_technology_category_choices() as $key => $default) {
         printf('<tr><th scope="row">%s<br><code>%s</code></th>', esc_html($default), esc_html($key));
         $values = is_array($stored) && is_array($stored[$key] ?? null) ? $stored[$key] : [];
         foreach (portfolio_category_languages() as $locale => $language) {

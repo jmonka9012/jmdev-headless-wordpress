@@ -36,11 +36,13 @@ foreach (portfolio_technology_categories() as $key => $labels) {
 $GLOBALS['options']['portfolio_category_labels'] = ['cms' => ['pl' => 'Localized category', 'en' => 'Custom category'], 'unknown' => ['pl' => 'Ignored']];
 $categories = portfolio_technology_categories();
 check($categories['cms'] === ['pl' => 'Localized category', 'en' => 'Custom category'], 'Configured labels override defaults independently for each locale.');
+check(portfolio_technology_category_choices()['cms'] === 'Custom category', 'Admin choices use the configured English label.');
 check(array_keys($categories) === array_keys($defaults), 'Stored data cannot add or reorder categories.');
 $GLOBALS['options']['portfolio_category_labels']['cms']['pl'] = ' ';
 check(portfolio_technology_categories()['cms']['pl'] === 'Custom category', 'An empty translation uses the configured English label.');
 $GLOBALS['options']['portfolio_category_labels']['cms']['en'] = ['invalid'];
 check(portfolio_technology_categories()['cms']['pl'] === $defaults['cms'], 'Invalid English labels fall back to PHP defaults.');
+check(portfolio_technology_category_choices()['cms'] === $defaults['cms'], 'Admin choices use the PHP default when the English label is invalid.');
 $GLOBALS['options']['portfolio_category_labels'] = 'invalid';
 check(portfolio_technology_categories()['cms']['en'] === $defaults['cms'], 'Malformed stored options remain readable through defaults.');
 $GLOBALS['languages']['fr'] = 'French';
@@ -66,5 +68,9 @@ check(count($GLOBALS['errors']) === 4, 'Invalid submissions report settings erro
 $GLOBALS['values'][71] = 'cms';
 check($callback(['id' => 71])['labels']['pl'] === 'Localized category', 'REST reads the same sanitized settings as the editor.');
 $GLOBALS['actions']['acf/init']();
-check($GLOBALS['group']['fields'][0]['choices'] === $defaults, 'Admin choices remain stable when public labels change.');
+check($GLOBALS['group']['fields'][0]['choices'] === portfolio_technology_category_choices(), 'The editor uses the same labels as the admin list and ordering.');
+check($GLOBALS['group']['fields'][0]['choices']['cms'] === $defaults['cms'], 'Localized labels do not replace English admin choices.');
+$GLOBALS['options']['portfolio_category_labels']['code']['en'] = 'Back-end';
+$GLOBALS['actions']['acf/init']();
+check($GLOBALS['group']['fields'][0]['choices']['code'] === 'Back-end', 'Renaming a category updates the editor without changing its key.');
 echo "Technology category fields and REST contracts passed.\n";
